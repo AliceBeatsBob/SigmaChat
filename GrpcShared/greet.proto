@@ -114,19 +114,8 @@ message LeftGroupMsg{
 	int64 senderId = 2;
 }
 
-
-enum UploadStatusCode {
-    Unknown = 0;
-    Ok = 1;
-    Failed = 2;
-}
-
-message UploadStatus {
-    string message = 1;
-    UploadStatusCode code = 2;
-}
-
 message Chunk{
     string fileName = 1;
     bytes content = 2;
+    int64 senderId = 3;
 }

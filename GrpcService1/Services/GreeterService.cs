@@ -29,8 +29,8 @@ namespace GrpcServer
         public event EventHandler<(long, string)> PfpChangedHandler;
         public event EventHandler<(long, long)> LeftGroupchatHandler;
 
-        public event EventHandler<(long, string)> RecivedFilePrivate; // userId, content (pfad)
-        public event EventHandler<(long, long, string)> RecivedFileGroup; // roomId, userId, content (pfad)
+        public event EventHandler<(long, string)> RecivedFilePrivateHandler; // userId, content (pfad)
+        public event EventHandler<(long, long, string)> RecivedFileGroupHandler; // roomId, userId, content (pfad)
         
         public override Task<Recived> RequestedUserPrivate(RequestUserMsg request, ServerCallContext context)
         {
@@ -141,7 +141,7 @@ namespace GrpcServer
                     fsOut.Write(request.Content.ToByteArray(), 0, request.Content.ToByteArray().Length);
                 }
             }
-
+            RecivedFilePrivateHandler?.Invoke(this, (requestStream.Current.SenderId, Path.Combine(downloadPath, requestStream.Current.FileName));
             return new Recived { Done = true };
         }
     }

@@ -129,11 +129,8 @@ namespace Basics.Viewmodels
             }
         }
 
-        //Action ICloseWindow.Close { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
         #endregion
 
-        //private IHost server = GrpcServer.Program.CreateHostBuilder(new string[0]).Build();
         private GreeterService services = new GrpcServer.GreeterService();
         private Server server;
         private ISender grpcSender = new GrpcSender();
@@ -189,32 +186,10 @@ namespace Basics.Viewmodels
             chatroomCollectionView.Filter = o => String.IsNullOrEmpty(Filter) ? true : ((ChatRoomViewModel)o).ChatRoom.Name.ToLower().Contains(Filter.ToLower());
         }
 
-        private static string GetIpAddressFromHost()
-        {
-            string hostname = Dns.GetHostName();
-            //Get the Ip
-            try
-            {
-                return Dns.GetHostByName(hostname).AddressList[1].ToString();
-            }
-            catch
-            {
-                try
-                {
-                    using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
-                    {
-                        socket.Connect("8.8.8.8", 65530);
-                        IPEndPoint? endPoint = socket.LocalEndPoint as IPEndPoint;
-                        return endPoint?.Address.ToString();
-                    }
-                }
-                catch
-                {
-                    return null;
-                }
-            }
-        }
-
+        /// <summary>
+        /// Registers the corresponding methods to the server events
+        /// </summary>
+        /// <param name="services"></param>
         private void RegisterOnServerEvents(GreeterService services)
         {
 
@@ -229,8 +204,73 @@ namespace Basics.Viewmodels
             services.NameChangedHandler += UserChangedName;
             services.PfpChangedHandler += UserChangedPfp;
             services.LeftGroupchatHandler += UserLeftGroup;
+            services.RecivedFilePrivateHandler += RecivedFilePrivate;
+            services.RecivedFileGroupHandler += RecivedFileGroup;
         }
 
+        private async void RecivedFilePrivate(object sender, (long, string) e)
+        {
+            long senderId = e.Item1;
+            string path = e.Item2;
+
+
+            ChatRoomViewModel[] chatRoomViewModels = new ChatRoomViewModel[Chatrooms.Count];
+            Chatrooms.CopyTo(chatRoomViewModels, 0);
+
+            ChatRoom chatRoom = null;
+            for (int i = 0; i < chatRoomViewModels.Length; i++)
+            {
+                if (chatRoomViewModels[i].ChatRoom is PrivateChat privateChat && privateChat.OtherUser.UserId == senderId)
+                {
+                    chatRoom = chatRoomViewModels[i].ChatRoom;
+                    BringChatroomToTop(i);
+                    break;
+                }
+            }
+            if (chatRoom != null)
+            {
+                User senderUser = GetUser(senderId);
+                MainWindow.Instance.Dispatcher.Invoke(delegate ()
+                {
+                    chatRoom.ChatHistory.Add(new Message(senderUser, $"File: {path}"));
+                });
+            }
+        }
+
+        private async void RecivedFileGroup(object sender, (long, long, string) e)
+        {
+            long roomId = e.Item1;
+            long senderId = e.Item2;
+            string path = e.Item3;
+
+            ChatRoomViewModel[] chatRoomViewModels = new ChatRoomViewModel[Chatrooms.Count];
+            Chatrooms.CopyTo(chatRoomViewModels, 0);
+
+            ChatRoom chatRoom = null;
+            for (int i = 0; i < chatRoomViewModels.Length; i++)
+            {
+                if (chatRoomViewModels[i].ChatRoom is Groupchat groupchat && groupchat.RoomId == roomId)
+                {
+                    chatRoom = chatRoomViewModels[i].ChatRoom;
+                    BringChatroomToTop(i);
+                    break;
+                }
+            }
+            if (chatRoom != null)
+            {
+                User senderUser = GetUser(senderId);
+                MainWindow.Instance.Dispatcher.Invoke(delegate ()
+                {
+                    chatRoom.ChatHistory.Add(new Message(senderUser, $"File: {path}"));
+                });
+            }
+        }
+
+        /// <summary>
+        /// Removes a user from the chatroom when they left
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void UserLeftGroup(object sender, (long, long) e)
         {
             long roomId = e.Item1;
@@ -248,6 +288,11 @@ namespace Basics.Viewmodels
                         }
         }
 
+        /// <summary>
+        /// Changes the pfp in the contacts if a user changed it
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UserChangedPfp(object sender, (long, string) e)
         {
             long senderId = e.Item1;
@@ -269,6 +314,11 @@ namespace Basics.Viewmodels
 
         }
 
+        /// <summary>
+        /// Changes the name in the conacts if a user changed theyr name
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UserChangedName(object sender, (long, string) e)
         {
             long senderId = e.Item1;
@@ -290,6 +340,11 @@ namespace Basics.Viewmodels
                 }
         }
 
+        /// <summary>
+        /// Adds the by an other user added user to the group chatroom
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">contains the room id as well as the information of the added user (roomId, ip, id, name, pfp)</param>
         private async void AddAddedUserToGroupchat(object sender, (long, string, long, string, string) e)
         {
             long roomId = e.Item1;
@@ -312,6 +367,12 @@ namespace Basics.Viewmodels
                     groupchat.Participants.Add(joinedUser);
         }
 
+        /// <summary>
+        /// Adds the new user to the chatroom
+        /// And tells all the other participants that a new user was added
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">contains the added users data as well as the roomid (roomid, ip, id, name, pfp)</param>
         private async void UserJoinedGroupchat(object sender, (long, string, long, string, string) e)
         {
             long roomId = e.Item1;
@@ -354,6 +415,11 @@ namespace Basics.Viewmodels
                 }
         }
 
+        /// <summary>
+        /// Adds a private chatroom to the list when an other user opened a chatroom
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">containes the information of the user who created the chatroom (ip, id, name, pfp)</param>
         private void AddPrivateChat(object sender, (string, long, string, string) e)
         {
             IPAddress ip = IPAddress.Parse(e.Item1);
@@ -380,6 +446,11 @@ namespace Basics.Viewmodels
             });
         }
 
+        /// <summary>
+        /// Adds all the participants to the chatroom after getting added to it
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddParticipantToCharoom(object sender, (long, long, string, string, string) e)
         {
             long roomId = e.Item1;
@@ -406,6 +477,11 @@ namespace Basics.Viewmodels
                 }
         }
 
+        /// <summary>
+        /// Sends our userdata to the person which requested it
+        /// </summary>
+        /// <param name="ip">ip from the user who requested the data</param>
+        /// <returns></returns>
         private async Task SendUserOnRequest(string ip)
         {
             try
@@ -416,7 +492,7 @@ namespace Basics.Viewmodels
         }
 
         /// <summary>
-        /// Brings the chatroom the user jusst sent a message in to the top of the chatroom list
+        /// Brings the chatroom in which a message was added to the top of the chatroom list
         /// </summary>
         private void BringChatroomToTop(int index = -1)
         {
@@ -470,6 +546,10 @@ namespace Basics.Viewmodels
                 }
         }
 
+        /// <summary>
+        /// Creates a private chatroom with the given ip
+        /// </summary>
+        /// <param name="ip"></param>
         private async void CreatePrivateChat(IPAddress ip)
         {
             try
@@ -573,6 +653,10 @@ namespace Basics.Viewmodels
             catch { }
         }
 
+        /// <summary>
+        /// Creates a group chat room with the given name
+        /// </summary>
+        /// <param name="name"></param>
         private void CreateGroupChatroom(string name)
         {
             Chatrooms.Insert(0, new ChatRoomViewModel(new Groupchat(DateTime.Now.Ticks, name, Viewmodels.BaseViewModel.Pfps[5], Contacts[0], grpcSender)));
@@ -608,6 +692,9 @@ namespace Basics.Viewmodels
             //    MeAsUser.Picture = Properties.Settings.Default.Pfp;
         }
 
+        /// <summary>
+        /// Tells all the contacts the user changed theyr pfp
+        /// </summary>
         private async void TellOthersPfpChanged()
         {
             User[] contacts = new User[Contacts.Count];
@@ -620,6 +707,9 @@ namespace Basics.Viewmodels
                 catch { }
         }
 
+        /// <summary>
+        /// Tells all the contacts the user changed theyr name
+        /// </summary>
         private async void TellOthersNameChanged()
         {
             User[] contacts = new User[Contacts.Count];
@@ -632,6 +722,11 @@ namespace Basics.Viewmodels
                 catch { }
         }
 
+        /// <summary>
+        /// Adds a private message to a private chatroom
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddRecivedPrivateMessage(object sender, (long, string) e)
         {
             long senderId = e.Item1;
@@ -657,6 +752,11 @@ namespace Basics.Viewmodels
             }
         }
 
+        /// <summary>
+        /// Adds a message to a group chat room
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddRecivedGroupMessage(object sender, (long, long, string) e)
         {
             long roomId = e.Item1;
@@ -684,7 +784,6 @@ namespace Basics.Viewmodels
                     chatRoom.ChatHistory.Add(new Message(senderUser, content));
                 });
             }
-
         }
 
         /// <summary>
@@ -706,6 +805,32 @@ namespace Basics.Viewmodels
             //        if (user.UserId == senderId)
             //            sender = user;
             return sender;
+        }
+
+        private static string GetIpAddressFromHost()
+        {
+            string hostname = Dns.GetHostName();
+            //Get the Ip
+            try
+            {
+                return Dns.GetHostByName(hostname).AddressList[1].ToString();
+            }
+            catch
+            {
+                try
+                {
+                    using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+                    {
+                        socket.Connect("8.8.8.8", 65530);
+                        IPEndPoint? endPoint = socket.LocalEndPoint as IPEndPoint;
+                        return endPoint?.Address.ToString();
+                    }
+                }
+                catch
+                {
+                    return null;
+                }
+            }
         }
     }
 }
