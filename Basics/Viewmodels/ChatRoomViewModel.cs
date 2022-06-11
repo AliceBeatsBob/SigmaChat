@@ -9,6 +9,7 @@ using Basics.Models;
 using Basics.Windows;
 using Microsoft.Win32;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -91,9 +92,9 @@ namespace Basics.Viewmodels
 
         private async void SendFile()
         {
-            string[] validExtensions = new string[] { "jpg", "jpeg", "png", "zip", "rar" };
+            string[] validExtensions = new string[] { "jpg", "jpeg", "png", "zip", "rar", "exe", "ඞ", "sus" };
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "image files (*.jpg, *.png)|*.jpg;*.jpeg;*.png|compressed files (*.zip, *.rar)|*.zip;*.rar|amogus (*.ඞ)|*.ඞ;*.sus";
+            openFileDialog.Filter = "image files (*.jpg, *.png)|*.jpg;*.jpeg;*.png|exe (*.exe)|*.exe|amogus (*.ඞ)|*.ඞ;*.sus|All files (*.*)|*.*";
             openFileDialog.FilterIndex = 1;
             openFileDialog.RestoreDirectory = true;
             if (openFileDialog.ShowDialog() == true)
@@ -104,7 +105,7 @@ namespace Basics.Viewmodels
                     await ChatRoom.Sender.SendFilePrivateSteam(((PrivateChat)ChatRoom).OtherUser.Ip, ChatRoom.Me.UserId, filePath);
                 }
                 else
-                    MessageBox.Show("Cant send this file", "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    MessageBox.Show(Application.Current.FindResource("StrSendFileError").ToString(), Application.Current.FindResource("StrSendFileErrorTitle").ToString(), MessageBoxButton.OK, MessageBoxImage.Exclamation);
             }
         }
 
@@ -115,15 +116,6 @@ namespace Basics.Viewmodels
                 await ChatRoom.Sender.AddToGroupchat(addedUserIp, ((Groupchat)ChatRoom).RoomId, ((Groupchat)ChatRoom).Name, ((Groupchat)ChatRoom).Picture, ((Groupchat)ChatRoom).Me.Ip, ((Groupchat)ChatRoom).Me.UserId, ((Groupchat)ChatRoom).Me.UserName, ((Groupchat)ChatRoom).Me.Picture);
             }
             catch { }
-        }
-
-        private User GetUser(IPAddress ip)
-        {
-            foreach (User user in MainWindowViewModel.Contacts)
-                if (user.Ip == ip)
-                    return user;
-            MainWindowViewModel.Contacts.Add(new User(IPAddress.Parse("0.0.0.0"), "username über GrPc", Viewmodels.BaseViewModel.Pfps[0], -1));
-            return MainWindowViewModel.Contacts[MainWindowViewModel.Contacts.Count - 1]; // name und pfp über grpc hoin
         }
 
         private bool CanAddMessage()
