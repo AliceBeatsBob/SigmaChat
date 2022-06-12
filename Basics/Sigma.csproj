@@ -44,7 +44,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\GrpcService1\GrpcServer.csproj" />
+		<ProjectReference Include="..\GrpcServer\GrpcServer.csproj" />
 		<ProjectReference Include="..\GrpcShared\GrpcShared.csproj" />
 	</ItemGroup>
 
