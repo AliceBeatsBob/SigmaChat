@@ -149,7 +149,28 @@ namespace Basics.Models
             {
                 while ((bytesRead = bs.Read(buffer, 0, MAX_BUFFER)) != 0) //reading 1mb chunks at a time
                 {
-                    await stream.RequestStream.WriteAsync(new Chunk() {FileName = Path.GetFileName(filePath), Content = ByteString.CopyFrom(buffer)});
+                    await stream.RequestStream.WriteAsync(new Chunk() {FileName = Path.GetFileName(filePath).Replace(' ', '-'), Content = ByteString.CopyFrom(buffer), SenderId = senderId});
+                }
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SendFileGroupSteam(IPAddress reciverIp, long roomId, long senderId, string filePath)
+        {
+            var channel = GrpcChannel.ForAddress($"http://{reciverIp}:5000");
+            var client = new Greeter.GreeterClient(channel);
+            using var stream = client.UploadFileGroupStream();
+
+            const int MAX_BUFFER = 1048576; //1MB 
+            byte[] buffer = new byte[MAX_BUFFER];
+            int bytesRead;
+            using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read))
+            using (BufferedStream bs = new BufferedStream(fs))
+            {
+                while ((bytesRead = bs.Read(buffer, 0, MAX_BUFFER)) != 0) //reading 1mb chunks at a time
+                {
+                    await stream.RequestStream.WriteAsync(new Chunk() { FileName = Path.GetFileName(filePath).Replace(' ', '-'), Content = ByteString.CopyFrom(buffer), SenderId = senderId, RoomId = roomId });
                 }
             }
 

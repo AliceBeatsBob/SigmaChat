@@ -26,6 +26,7 @@ service Greeter {
   rpc JoinGroupchat (JoinGroupchatMsg) returns (Recived);
   rpc LeftGroup (LeftGroupMsg) returns (Recived);
   rpc UploadFilePrivateStream (stream Chunk) returns (Recived);
+  rpc UploadFileGroupStream (stream Chunk) returns (Recived);
 }
 
 //service GuploadService {
@@ -118,4 +119,5 @@ message Chunk{
     string fileName = 1;
     bytes content = 2;
     int64 senderId = 3;
+    optional int64 roomId = 4;
 }

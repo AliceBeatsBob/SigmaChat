@@ -131,6 +131,8 @@ namespace GrpcServer
 
         public override async Task<Recived> UploadFilePrivateStream(IAsyncStreamReader<Chunk> requestStream, ServerCallContext context)
         {
+            long senderId = -1;
+            string fileName = "";
             string downloadPath = Path.Combine(Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents"), "Sigma");
             Directory.CreateDirectory(downloadPath);
             await foreach (var request in requestStream.ReadAllAsync())
@@ -139,9 +141,34 @@ namespace GrpcServer
                 using (FileStream fsOut = File.OpenWrite(path))
                 {
                     fsOut.Write(request.Content.ToByteArray(), 0, request.Content.ToByteArray().Length);
+                    senderId = request.SenderId;
+                    fileName = request.FileName;
                 }
             }
-            RecivedFilePrivateHandler?.Invoke(this, (requestStream.Current.SenderId, Path.Combine(downloadPath, requestStream.Current.FileName));
+            RecivedFilePrivateHandler?.Invoke(this, (senderId, Path.Combine(downloadPath, fileName)));
+            return new Recived { Done = true };
+        }
+
+        public override async Task<Recived> UploadFileGroupStream(IAsyncStreamReader<Chunk> requestStream, ServerCallContext context)
+        {
+            long roomId = -1;
+            long senderId = -1;
+            string fileName = "";
+
+            string downloadPath = Path.Combine(Path.Combine(Environment.ExpandEnvironmentVariables("%userprofile%"), "Documents"), "Sigma");
+            Directory.CreateDirectory(downloadPath);
+            await foreach (var request in requestStream.ReadAllAsync())
+            {
+                string path = Path.Combine(Path.Combine(downloadPath, request.FileName));
+                using (FileStream fsOut = File.OpenWrite(path))
+                {
+                    fsOut.Write(request.Content.ToByteArray(), 0, request.Content.ToByteArray().Length);
+                    roomId = request.RoomId;
+                    senderId = request.SenderId;
+                    fileName = request.FileName;
+                }
+            }
+            RecivedFileGroupHandler?.Invoke(this, (roomId, senderId, Path.Combine(downloadPath, fileName)));
             return new Recived { Done = true };
         }
     }

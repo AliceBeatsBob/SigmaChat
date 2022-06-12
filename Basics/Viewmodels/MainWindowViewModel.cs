@@ -213,7 +213,6 @@ namespace Basics.Viewmodels
             long senderId = e.Item1;
             string path = e.Item2;
 
-
             ChatRoomViewModel[] chatRoomViewModels = new ChatRoomViewModel[Chatrooms.Count];
             Chatrooms.CopyTo(chatRoomViewModels, 0);
 
@@ -232,7 +231,7 @@ namespace Basics.Viewmodels
                 User senderUser = GetUser(senderId);
                 MainWindow.Instance.Dispatcher.Invoke(delegate ()
                 {
-                    chatRoom.ChatHistory.Add(new Message(senderUser, $"File: {path}"));
+                    chatRoom.ChatHistory.Add(new Message(senderUser, $"FILE: {path}"));
                 });
             }
         }
@@ -261,7 +260,7 @@ namespace Basics.Viewmodels
                 User senderUser = GetUser(senderId);
                 MainWindow.Instance.Dispatcher.Invoke(delegate ()
                 {
-                    chatRoom.ChatHistory.Add(new Message(senderUser, $"File: {path}"));
+                    chatRoom.ChatHistory.Add(new Message(senderUser, $"FILE: {path}"));
                 });
             }
         }

@@ -61,16 +61,15 @@
             </Grid.RowDefinitions>
 
             <!--Listbox for the Messages-->
-            <ListBox x:Name="lstChat" ScrollViewer.CanContentScroll="False"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 Grid.Row="0"  HorizontalContentAlignment="Stretch" Background="{DynamicResource Backgroundcolor}" BorderThickness="0" ItemsSource="{Binding ChatRoom.ChatHistory}">
+            <ListBox x:Name="lstChat" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Row="0" 
+                     HorizontalContentAlignment="Stretch" Background="{DynamicResource Backgroundcolor}" BorderThickness="0" ItemsSource="{Binding ChatRoom.ChatHistory}">
 
                 <!--custom scrollbar-->
                 <!--Custom Listbox items to fit the Chat Style-->
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:Message}">
                         <!--<Border BorderThickness="1" BorderBrush="LightGray" CornerRadius="10">-->
-                        <Grid Margin="2">
+                        <Grid Margin="2" MouseLeftButtonUp="lstChat_MouseLeftButtonUp">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="60"/>
                                 <ColumnDefinition Width="*"/>

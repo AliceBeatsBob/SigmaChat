@@ -102,7 +102,28 @@ namespace Basics.Viewmodels
                 string filePath = openFileDialog.FileName;
                 if (validExtensions.Contains(openFileDialog.FileName.Split('.')[openFileDialog.FileName.Split('.').Length - 1]))
                 {
-                    await ChatRoom.Sender.SendFilePrivateSteam(((PrivateChat)ChatRoom).OtherUser.Ip, ChatRoom.Me.UserId, filePath);
+                    if (ChatRoom is PrivateChat)
+                        try
+                        {
+                            await ChatRoom.Sender.SendFilePrivateSteam(((PrivateChat)ChatRoom).OtherUser.Ip, ChatRoom.Me.UserId, filePath);
+                        }
+                        catch { }
+                    else
+                    {
+                        Groupchat groupchat = (Groupchat)ChatRoom;
+                        for (int i = 0; i < groupchat.Participants.Count; i++)
+                        {
+                            try
+                            {
+                                await ChatRoom.Sender.SendFileGroupSteam(groupchat.Participants[i].Ip, ((Groupchat)ChatRoom).RoomId, ChatRoom.Me.UserId, filePath);                                
+                            }
+                            catch
+                            {
+                                //MessageBox.Show($"Could not send {((Groupchat)ChatRoom).Name} message to {groupchat.Participants[i].UserName}", "Could not send message");
+                            }
+                        }
+                    }
+                    ChatRoom.ChatHistory.Add(new Message(ChatRoom.Me, $"FILE: {filePath}"));
                 }
                 else
                     MessageBox.Show(Application.Current.FindResource("StrSendFileError").ToString(), Application.Current.FindResource("StrSendFileErrorTitle").ToString(), MessageBoxButton.OK, MessageBoxImage.Exclamation);

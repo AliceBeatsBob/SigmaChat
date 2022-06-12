@@ -4,6 +4,8 @@
 //  ඞ Ratzenböck Peter
 
 using Basics.Viewmodels;
+using Microsoft.Win32;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -46,6 +48,30 @@ namespace Basics.UserControls
         {
             if (e.Key == System.Windows.Input.Key.Return || e.Key == System.Windows.Input.Key.Enter)
                 ScrollDown();
+        }
+
+        private void lstChat_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if(lstChat.SelectedValue != null)
+            {
+                Models.Message message = (Models.Message)lstChat.SelectedItem;
+                if (message.Content.StartsWith("FILE: "))
+                {
+                    int start = message.Content.IndexOf(' ');
+                    string path = message.Content.Substring(start + 1);
+                    string args = string.Format($"/e, /select, \"{path}\"");
+
+                    ProcessStartInfo info = new ProcessStartInfo();
+                    info.FileName = "explorer";
+                    info.Arguments = args;
+                    Process.Start(info);
+                }
+            }
+        }
+
+        private void Grid_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+
         }
     }
 }
