@@ -3,16 +3,13 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
+using Microsoft.Win32;
 using Sigma.Commands;
-using Sigma.Interfaces;
 using Sigma.Models;
 using Sigma.Windows;
-using Microsoft.Win32;
 using System;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace Sigma.Viewmodels
@@ -34,23 +31,23 @@ namespace Sigma.Viewmodels
         string currentMessage;
         public string CurrentMessage
         {
-            get => this.currentMessage;
+            get => currentMessage;
             set
             {
-                if (value != this.currentMessage)
+                if (value != currentMessage)
                 {
-                    this.currentMessage = value;
-                    this.RaisePropertyChanged();
-                    this.AddCommand.RaiseCanExecuteChanged();
+                    currentMessage = value;
+                    RaisePropertyChanged();
+                    AddCommand.RaiseCanExecuteChanged();
                 }
             }
         }
 
         public ChatRoomViewModel(ChatRoom chatRoom)
         {
-            this.ChatRoom = chatRoom;
-            this.AddCommand = new DelegateCommand(_ => CanAddMessage(), _ => AddMessage());
-            this.AddUserToGroupchatCommand = new DelegateCommand(
+            ChatRoom = chatRoom;
+            AddCommand = new DelegateCommand(_ => CanAddMessage(), _ => AddMessage());
+            AddUserToGroupchatCommand = new DelegateCommand(
                 _ =>
                 {
                     // prüfen ob admin
@@ -67,7 +64,7 @@ namespace Sigma.Viewmodels
                         AddUserToChatroom(IPAddress.Parse(addUserVm.IpField));
                     }
                 });
-            this.LeavGroupChatCommand = new DelegateCommand(
+            LeavGroupChatCommand = new DelegateCommand(
                 _ =>
                 {
 
@@ -75,12 +72,12 @@ namespace Sigma.Viewmodels
                     if (result == MessageBoxResult.Yes)
                         LeavGroupChatEventHandler?.Invoke(this, EventArgs.Empty);
                 });
-            this.UploadCommand = new DelegateCommand(
+            UploadCommand = new DelegateCommand(
                 _ =>
                 {
                     SendFile();
                 });
-            this.ListMembersCommand = new DelegateCommand(
+            ListMembersCommand = new DelegateCommand(
                 _ =>
                 {
                     var userListVm = new GroupMemberListViewModel(((Groupchat)ChatRoom).Participants, ChatRoom.Name);
@@ -115,7 +112,7 @@ namespace Sigma.Viewmodels
                         {
                             try
                             {
-                                await ChatRoom.Sender.SendFileGroupSteam(groupchat.Participants[i].Ip, ((Groupchat)ChatRoom).RoomId, ChatRoom.Me.UserId, filePath);                                
+                                await ChatRoom.Sender.SendFileGroupSteam(groupchat.Participants[i].Ip, ((Groupchat)ChatRoom).RoomId, ChatRoom.Me.UserId, filePath);
                             }
                             catch
                             {
@@ -141,7 +138,7 @@ namespace Sigma.Viewmodels
 
         private bool CanAddMessage()
         {
-            return !string.IsNullOrEmpty(this.CurrentMessage);
+            return !string.IsNullOrEmpty(CurrentMessage);
         }
 
         /// <summary>
@@ -150,9 +147,9 @@ namespace Sigma.Viewmodels
         /// </summary>
         private async void AddMessage()
         {
-            this.ChatRoom.ChatHistory.Add(new Message(ChatRoom.Me, currentMessage));
+            ChatRoom.ChatHistory.Add(new Message(ChatRoom.Me, currentMessage));
             MessageSentBringChatToTopHandler?.Invoke(this, EventArgs.Empty);
-            if (this.ChatRoom is PrivateChat)
+            if (ChatRoom is PrivateChat)
             {
                 // call async SendPrivate
                 try
@@ -179,7 +176,7 @@ namespace Sigma.Viewmodels
                     }
                 }
             }
-            this.CurrentMessage = "";
+            CurrentMessage = "";
         }
     }
 }

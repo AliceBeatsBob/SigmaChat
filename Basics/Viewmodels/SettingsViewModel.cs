@@ -63,7 +63,7 @@ namespace Sigma.Viewmodels
                 if (value != _indexPicture)
                 {
                     _indexPicture = value;
-                    this.RaisePropertyChanged();
+                    RaisePropertyChanged();
                 }
             }
         }
@@ -76,8 +76,8 @@ namespace Sigma.Viewmodels
                 if (value != theme)
                 {
                     theme = value;
-                    this.RaisePropertyChanged();
-                    this.SaveCommand.RaiseCanExecuteChanged();
+                    RaisePropertyChanged();
+                    SaveCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -108,36 +108,36 @@ namespace Sigma.Viewmodels
         {
             InitLanguageCombobox();
             SetLanguageComboboxOnStartup();
-            this.SaveCommand = new DelegateCommand(
+            SaveCommand = new DelegateCommand(
             _ =>
             {
                 // save button is only enabled if something changed
-                return !string.IsNullOrEmpty(this.NameSettings) && this.NameSettings != Properties.Settings.Default.Name
-                    || !string.IsNullOrEmpty(this.ProfilePicture) && this.ProfilePicture != Properties.Settings.Default.Pfp
-                    || this.LanguageComboBoxSelectedIndex != -1 && this.LanguageCollection[LanguageComboBoxSelectedIndex].LanguageCode != Properties.Settings.Default.Language
-                    || Theme != null && !string.IsNullOrEmpty(this.Theme) && this.Theme != Properties.Settings.Default.Theme;
+                return !string.IsNullOrEmpty(NameSettings) && NameSettings != Properties.Settings.Default.Name
+                    || !string.IsNullOrEmpty(ProfilePicture) && ProfilePicture != Properties.Settings.Default.Pfp
+                    || LanguageComboBoxSelectedIndex != -1 && LanguageCollection[LanguageComboBoxSelectedIndex].LanguageCode != Properties.Settings.Default.Language
+                    || Theme != null && !string.IsNullOrEmpty(Theme) && Theme != Properties.Settings.Default.Theme;
             },
             _ =>
             {
                 // change name
-                if (!string.IsNullOrEmpty(this.NameSettings) && this.NameSettings != Properties.Settings.Default.Name)
+                if (!string.IsNullOrEmpty(NameSettings) && NameSettings != Properties.Settings.Default.Name)
                 {
-                    Properties.Settings.Default.Name = this.NameSettings;
+                    Properties.Settings.Default.Name = NameSettings;
                 }
                 //change pfp
-                if (!string.IsNullOrEmpty(this.ProfilePicture) && this.ProfilePicture != Properties.Settings.Default.Pfp)
+                if (!string.IsNullOrEmpty(ProfilePicture) && ProfilePicture != Properties.Settings.Default.Pfp)
                 {
-                    Properties.Settings.Default.Pfp = this.ProfilePicture;
+                    Properties.Settings.Default.Pfp = ProfilePicture;
                 }
                 // change language
-                if (this.LanguageCollection[LanguageComboBoxSelectedIndex].LanguageCode != Properties.Settings.Default.Language)
+                if (LanguageCollection[LanguageComboBoxSelectedIndex].LanguageCode != Properties.Settings.Default.Language)
                 {
-                    Properties.Settings.Default.Language = this.LanguageCollection[LanguageComboBoxSelectedIndex].LanguageCode;
+                    Properties.Settings.Default.Language = LanguageCollection[LanguageComboBoxSelectedIndex].LanguageCode;
                 }
                 // change theme
-                if (!string.IsNullOrEmpty(this.Theme) && this.Theme != Properties.Settings.Default.Theme)
+                if (!string.IsNullOrEmpty(Theme) && Theme != Properties.Settings.Default.Theme)
                 {
-                    Properties.Settings.Default.Theme = this.Theme;
+                    Properties.Settings.Default.Theme = Theme;
                 }
                 // save changes
                 Properties.Settings.Default.Save();
@@ -145,14 +145,14 @@ namespace Sigma.Viewmodels
             });
 
             // 
-            this.ThemeCommand = new DelegateCommand((o) =>
+            ThemeCommand = new DelegateCommand((o) =>
             {
                 string color = (string)o;
                 Theme = color;
             });
 
             // shows the nex picture for selecting
-            this.Next = new DelegateCommand(
+            Next = new DelegateCommand(
             (o) =>
             {
                 if (selectedPfp < 5)
@@ -164,7 +164,7 @@ namespace Sigma.Viewmodels
             });
 
             // shows the previous picture for selecting
-            this.Last = new DelegateCommand(
+            Last = new DelegateCommand(
             (o) =>
             {
                 if (selectedPfp > 0)

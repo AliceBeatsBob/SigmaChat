@@ -3,11 +3,7 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Sigma.Interfaces
@@ -29,6 +25,6 @@ namespace Sigma.Interfaces
         public Task<bool> NameChanged(IPAddress reciverIp, long senderId, string senderNewName);
         public Task<bool> LeaveGroup(IPAddress reciverIp, long roomId, long senderId);
         public Task<bool> SendFilePrivateSteam(IPAddress reciverIp, long senderId, string filePath);
-        public Task<bool> SendFileGroupSteam(IPAddress reciverIp,long roomId, long senderId, string filePath);
+        public Task<bool> SendFileGroupSteam(IPAddress reciverIp, long roomId, long senderId, string filePath);
     }
 }

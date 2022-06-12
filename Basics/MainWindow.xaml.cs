@@ -43,9 +43,9 @@ namespace Sigma
             if (string.IsNullOrEmpty(Properties.Settings.Default.Name))
             {
                 MessageBox.Show("Error, no Name was given.", "Alert", MessageBoxButton.OK);
-                this.Close();
+                Close();
             }
-            if(Properties.Settings.Default.UserId == -1)
+            if (Properties.Settings.Default.UserId == -1)
             {
                 Properties.Settings.Default.UserId = DateTime.Now.Ticks;
                 Properties.Settings.Default.Save();
@@ -59,14 +59,14 @@ namespace Sigma
             Chat.Visibility = Visibility.Collapsed;
             Set.Visibility = Visibility.Collapsed;
 
-            this.Resources["Backgroundcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.BackgroundColor));
-            this.Resources["Bordercolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.BorderColor));
-            this.Resources["Menucolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.MenuColor));
-            this.Resources["Textcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.TextColor));
-            this.Resources["Userlistboxcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.UserListBoxColor));
-            this.Resources["Textfieldcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.TextfielColor));
-            this.Resources["Buttoncolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.ButtonColor));
-            
+            Resources["Backgroundcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.BackgroundColor));
+            Resources["Bordercolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.BorderColor));
+            Resources["Menucolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.MenuColor));
+            Resources["Textcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.TextColor));
+            Resources["Userlistboxcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.UserListBoxColor));
+            Resources["Textfieldcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.TextfielColor));
+            Resources["Buttoncolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.ButtonColor));
+
             Instance = this;
         }
 
@@ -133,13 +133,13 @@ namespace Sigma
 
         private void Colorsetter(Color background, Color border, Color menu, Color text, Color listbox, Color textfield, Color buttoncolor)
         {
-            this.Resources["Backgroundcolor"] = new SolidColorBrush(background);
-            this.Resources["Bordercolor"] = new SolidColorBrush(border);
-            this.Resources["Menucolor"] = new SolidColorBrush(menu);
-            this.Resources["Textcolor"] = new SolidColorBrush(text);
-            this.Resources["Userlistboxcolor"] = new SolidColorBrush(listbox);
-            this.Resources["Textfieldcolor"] = new SolidColorBrush(textfield);
-            this.Resources["Buttoncolor"] = new SolidColorBrush(buttoncolor);
+            Resources["Backgroundcolor"] = new SolidColorBrush(background);
+            Resources["Bordercolor"] = new SolidColorBrush(border);
+            Resources["Menucolor"] = new SolidColorBrush(menu);
+            Resources["Textcolor"] = new SolidColorBrush(text);
+            Resources["Userlistboxcolor"] = new SolidColorBrush(listbox);
+            Resources["Textfieldcolor"] = new SolidColorBrush(textfield);
+            Resources["Buttoncolor"] = new SolidColorBrush(buttoncolor);
             Properties.Settings.Default.BackgroundColor = background.ToString();
             Properties.Settings.Default.BorderColor = border.ToString();
             Properties.Settings.Default.MenuColor = menu.ToString();
@@ -171,12 +171,12 @@ namespace Sigma
 
             void changeText()
             {
-                this.Dispatcher.Invoke(delegate ()
+                Dispatcher.Invoke(delegate ()
                 {
                     tbl_ip.SetResourceReference(Button.ContentProperty, "StrCopyIpButtonClicked");
                 });
                 Thread.Sleep(1000);
-                this.Dispatcher.Invoke(delegate ()
+                Dispatcher.Invoke(delegate ()
                 {
                     tbl_ip.SetResourceReference(Button.ContentProperty, "StrCopyIpButton");
                     //tbl_ip.IsEnabled = true;

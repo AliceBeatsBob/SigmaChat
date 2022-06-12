@@ -29,10 +29,6 @@ service Greeter {
   rpc UploadFileGroupStream (stream Chunk) returns (Recived);
 }
 
-//service GuploadService {
-//    rpc Upload(stream Chunk) returns (UploadStatus) {}
-//}
-
 message Recived{
 	bool done = 1;
 }

@@ -3,16 +3,8 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Grpc.Core;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 
 namespace GrpcServer
 {
@@ -20,9 +12,7 @@ namespace GrpcServer
     {
         public static void Main(string[] args)
         {
-            IHostBuilder hostBuilder = CreateHostBuilder(args);
-            IHost host = hostBuilder.Build();
-            host.Run();
+            CreateHostBuilder(args).Build().Run();
         }
 
         // Additional configuration is required to successfully run gRPC on macOS.

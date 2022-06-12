@@ -19,13 +19,13 @@ namespace Sigma.Windows
         {
             InitializeComponent();
             WelcomeViewModel vm = new WelcomeViewModel();
-            this.DataContext = vm;
-            vm.CloseAction = new Action(this.Close);
+            DataContext = vm;
+            vm.CloseAction = new Action(Close);
         }
         private void Drag(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
-                this.DragMove();
+                DragMove();
         }
     }
 }

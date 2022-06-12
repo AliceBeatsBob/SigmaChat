@@ -16,14 +16,12 @@
 
 	<ItemGroup>
 		<None Remove="greet.proto" />
-		<None Remove="greetings.proto" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Protobuf Include="greet.proto">
 			<GrpcServices>Both</GrpcServices>
 		</Protobuf>
-		<Protobuf Include="greetings.proto" GrpcServices="Both" />
 	</ItemGroup>
 
 	<ItemGroup>

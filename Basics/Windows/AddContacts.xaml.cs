@@ -30,8 +30,8 @@ namespace Sigma.Windows
 
         private void btn_createGroup_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = true;
-            this.Close();
+            DialogResult = true;
+            Close();
         }
     }
 }
