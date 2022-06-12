@@ -6,7 +6,7 @@
 using System;
 using System.Windows.Input;
 
-namespace Basics.Commands
+namespace Sigma.Commands
 {
     public class DelegateCommand : ICommand
     {

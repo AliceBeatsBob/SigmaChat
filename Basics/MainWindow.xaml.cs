@@ -3,7 +3,7 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Viewmodels;
+using Sigma.Viewmodels;
 using System;
 using System.Globalization;
 using System.Net;
@@ -14,7 +14,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace Basics
+namespace Sigma
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

@@ -5,7 +5,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace Basics.Extensions
+namespace Sigma.Extensions
 {
     /// <summary>
     /// string extensions

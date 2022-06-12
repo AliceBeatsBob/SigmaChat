@@ -6,7 +6,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Basics.Models
+namespace Sigma.Models
 {
     public class BaseNotifyPropertyChanged : INotifyPropertyChanged
     {

@@ -10,7 +10,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Basics.Interfaces
+namespace Sigma.Interfaces
 {
     public interface ISender
     {

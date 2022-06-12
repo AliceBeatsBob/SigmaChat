@@ -3,7 +3,7 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Extensions;
+using Sigma.Extensions;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -11,7 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace Basics.UserControls
+namespace Sigma.UserControls
 {
     /// <summary>
     /// Interaction logic for IpField

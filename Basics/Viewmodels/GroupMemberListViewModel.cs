@@ -3,7 +3,7 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Models;
+using Sigma.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Basics.Viewmodels
+namespace Sigma.Viewmodels
 {
     public class GroupMemberListViewModel : BaseViewModel
     {

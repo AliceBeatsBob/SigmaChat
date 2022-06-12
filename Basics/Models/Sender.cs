@@ -3,7 +3,7 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Interfaces;
+using Sigma.Interfaces;
 using Google.Protobuf;
 using Grpc.Net.Client;
 using GrpcShared;
@@ -13,7 +13,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Basics.Models
+namespace Sigma.Models
 {
     public class GrpcSender : ISender
     {

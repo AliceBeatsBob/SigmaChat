@@ -3,10 +3,10 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Interfaces;
+using Sigma.Interfaces;
 using System.Collections.Generic;
 
-namespace Basics.Models
+namespace Sigma.Models
 {
     public class Groupchat : ChatRoom
     {

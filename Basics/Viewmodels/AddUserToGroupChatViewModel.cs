@@ -3,13 +3,13 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Commands;
+using Sigma.Commands;
 using System;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
-namespace Basics.Viewmodels
+namespace Sigma.Viewmodels
 {
     public class AddUserToGroupChatViewModel : BaseViewModel
     {

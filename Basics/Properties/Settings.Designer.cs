@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Basics.Properties {
+namespace Sigma.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

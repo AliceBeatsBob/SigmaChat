@@ -7,7 +7,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Basics.Viewmodels
+namespace Sigma.Viewmodels
 {
 
     public class BaseViewModel : INotifyPropertyChanged

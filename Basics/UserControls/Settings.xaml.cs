@@ -3,13 +3,13 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Viewmodels;
+using Sigma.Viewmodels;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 
-namespace Basics.UserControls
+namespace Sigma.UserControls
 {
     /// <summary>
     /// Interaction logic for Settings.xaml

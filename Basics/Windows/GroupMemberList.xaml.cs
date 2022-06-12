@@ -3,7 +3,7 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Viewmodels;
+using Sigma.Viewmodels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace Basics.Windows
+namespace Sigma.Windows
 {
     /// <summary>
     /// Interaction logic for GroupMemberList.xaml

@@ -1,17 +1,17 @@
-﻿<Window x:Class="Basics.Windows.AddContacts"
+﻿<Window x:Class="Sigma.Windows.AddContacts"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Basics"
-        xmlns:vm="clr-namespace:Basics.Viewmodels"
-        xmlns:ip="clr-namespace:Basics.UserControls"
+        xmlns:local="clr-namespace:Sigma"
+        xmlns:vm="clr-namespace:Sigma.Viewmodels"
+        xmlns:ip="clr-namespace:Sigma.UserControls"
         mc:Ignorable="d"
         Title="{DynamicResource StrAddPersonOrGroupTitle}"
         Height="250" Width="400" ResizeMode="NoResize"
         Icon="https://img.icons8.com/external-sbts2018-solid-sbts2018/344/external-add-user-basic-ui-elements-2.5-sbts2018-solid-sbts2018.png"
         DataContext="{Binding RelativeSource={RelativeSource Self}, Path=AddContacsViewModel}"
-        xmlns:dialog="clr-namespace:Basics.Windows">
+        xmlns:dialog="clr-namespace:Sigma.Windows">
     <!--WindowStyle="None">-->
 
     <!--<dialog:AddContacts ShowInTaskbar="False">-->

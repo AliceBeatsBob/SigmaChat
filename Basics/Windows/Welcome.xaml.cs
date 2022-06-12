@@ -3,12 +3,12 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Viewmodels;
+using Sigma.Viewmodels;
 using System;
 using System.Windows;
 using System.Windows.Input;
 
-namespace Basics.Windows
+namespace Sigma.Windows
 {
     /// <summary>
     /// Interaction logic for Welcome.xaml

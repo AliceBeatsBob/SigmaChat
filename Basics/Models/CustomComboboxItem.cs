@@ -3,7 +3,7 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-namespace Basics.Models
+namespace Sigma.Models
 {
     public class CustomComboboxItem
     {

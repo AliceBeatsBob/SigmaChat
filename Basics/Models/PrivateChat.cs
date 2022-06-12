@@ -3,9 +3,9 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Interfaces;
+using Sigma.Interfaces;
 
-namespace Basics.Models
+namespace Sigma.Models
 {
     public class PrivateChat : ChatRoom
     {

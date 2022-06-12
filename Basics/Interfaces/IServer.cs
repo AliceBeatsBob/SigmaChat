@@ -7,7 +7,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Basics.Interfaces
+namespace Sigma.Interfaces
 {
     /// <summary>
     /// All methods should be async
@@ -64,9 +64,9 @@ namespace Basics.Interfaces
 
 //using System;
 //using System.Net;
-//using Basics.Models;
+//using Sigma.Models;
 
-//namespace Basics.Interfaces
+//namespace Sigma.Interfaces
 //{
 //    /// <summary>
 //    /// All methods should be async

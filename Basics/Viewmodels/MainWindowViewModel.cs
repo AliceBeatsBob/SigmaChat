@@ -3,9 +3,9 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Commands;
-using Basics.Interfaces;
-using Basics.Models;
+using Sigma.Commands;
+using Sigma.Interfaces;
+using Sigma.Models;
 using Grpc.Core;
 using GrpcServer;
 using GrpcShared;
@@ -20,7 +20,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
 
-namespace Basics.Viewmodels
+namespace Sigma.Viewmodels
 {
     public class MainWindowViewModel : BaseViewModel
     {

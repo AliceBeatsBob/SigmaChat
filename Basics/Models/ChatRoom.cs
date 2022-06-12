@@ -3,10 +3,10 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Interfaces;
+using Sigma.Interfaces;
 using System.Collections.ObjectModel;
 
-namespace Basics.Models
+namespace Sigma.Models
 {
     public class ChatRoom : BaseNotifyPropertyChanged
     {

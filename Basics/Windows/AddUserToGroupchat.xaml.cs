@@ -3,10 +3,10 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Viewmodels;
+using Sigma.Viewmodels;
 using System.Windows;
 
-namespace Basics.Windows
+namespace Sigma.Windows
 {
     /// <summary>
     /// Interaction logic for AddContacts.xaml

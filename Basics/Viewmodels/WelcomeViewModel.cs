@@ -3,12 +3,12 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Commands;
-using Basics.Interfaces;
+using Sigma.Commands;
+using Sigma.Interfaces;
 using System;
 
 
-namespace Basics.Viewmodels
+namespace Sigma.Viewmodels
 {
     public class WelcomeViewModel : BaseViewModel, ICloseWindow
     {

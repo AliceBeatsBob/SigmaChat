@@ -3,11 +3,11 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Viewmodels;
+using Sigma.Viewmodels;
 using System;
 using System.Collections.ObjectModel;
 
-namespace Basics.Properties
+namespace Sigma.Properties
 {
     [Serializable]
     class CustomSettingsProperties

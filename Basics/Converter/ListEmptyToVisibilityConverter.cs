@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace Basics.Converter
+namespace Sigma.Converter
 {
     /// <summary>
     /// Uses the selected index of an ItemsControl and converts it to visible if it is >= 0

@@ -3,7 +3,7 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-namespace Basics.Properties
+namespace Sigma.Properties
 {
 
 

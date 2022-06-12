@@ -3,11 +3,11 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Interfaces;
+using Sigma.Interfaces;
 using System.ComponentModel;
 using System.Windows;
 
-namespace Basics
+namespace Sigma
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -22,14 +22,14 @@ namespace Basics
         {
             //TODO: initialize Server application property
             base.OnStartup(e);
-            ChangeLanguage(Basics.Properties.Settings.Default.Language);
-            Basics.Properties.Settings.Default.PropertyChanged += SettingChanged;
+            ChangeLanguage(Sigma.Properties.Settings.Default.Language);
+            Sigma.Properties.Settings.Default.PropertyChanged += SettingChanged;
         }
 
         private void SettingChanged(object? sendeer, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Basics.Properties.Settings.Default.Language))
-                ChangeLanguage(Basics.Properties.Settings.Default.Language);
+            if (e.PropertyName == nameof(Sigma.Properties.Settings.Default.Language))
+                ChangeLanguage(Sigma.Properties.Settings.Default.Language);
         }
 
         private static void ChangeLanguage(string languageCode)

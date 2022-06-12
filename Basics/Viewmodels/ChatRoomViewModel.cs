@@ -3,10 +3,10 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Commands;
-using Basics.Interfaces;
-using Basics.Models;
-using Basics.Windows;
+using Sigma.Commands;
+using Sigma.Interfaces;
+using Sigma.Models;
+using Sigma.Windows;
 using Microsoft.Win32;
 using System;
 using System.IO;
@@ -15,7 +15,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Basics.Viewmodels
+namespace Sigma.Viewmodels
 {
     public class ChatRoomViewModel : BaseViewModel
     {

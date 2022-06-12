@@ -3,12 +3,12 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Commands;
-using Basics.Models;
+using Sigma.Commands;
+using Sigma.Models;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace Basics.Viewmodels
+namespace Sigma.Viewmodels
 {
     public class SettingsViewModel : BaseViewModel, INotifyPropertyChanged
     {

@@ -3,13 +3,13 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Basics.Models;
+using Sigma.Models;
 using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace Basics.Converter
+namespace Sigma.Converter
 {
     internal class GroupChatButtonsVisiblityConverter : IValueConverter
     {

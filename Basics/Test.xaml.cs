@@ -5,7 +5,7 @@
 
 using System.Windows.Controls;
 
-namespace Basics
+namespace Sigma
 {
     /// <summary>
     /// Interaction logic for Test.xaml

@@ -5,7 +5,7 @@
 
 using System.Net;
 
-namespace Basics.Models
+namespace Sigma.Models
 {
     public class User : BaseNotifyPropertyChanged
     {

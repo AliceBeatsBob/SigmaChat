@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Basics.Interfaces // Interface used to Close other windows
+namespace Sigma.Interfaces // Interface used to Close other windows
 {
     internal interface ICloseWindow
     {
