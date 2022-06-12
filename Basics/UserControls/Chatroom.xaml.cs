@@ -4,6 +4,7 @@
 //  ඞ Ratzenböck Peter
 
 using Sigma.Viewmodels;
+using Microsoft.Win32;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -34,7 +35,7 @@ namespace Sigma.UserControls
 
         private void ScrollDown()
         {
-            if (lstChat != null)
+            if(lstChat != null)
                 lstChat.ScrollIntoView(lstChat.Items[lstChat.Items.Count - 1]);
         }
 
@@ -51,7 +52,7 @@ namespace Sigma.UserControls
 
         private void lstChat_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (lstChat.SelectedValue != null)
+            if(lstChat.SelectedValue != null)
             {
                 Models.Message message = (Models.Message)lstChat.SelectedItem;
                 if (message.Content.StartsWith("FILE: "))

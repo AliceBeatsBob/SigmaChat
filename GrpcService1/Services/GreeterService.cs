@@ -4,7 +4,11 @@
 //  ඞ Ratzenböck Peter
 
 using Grpc.Core;
+using GrpcShared;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -27,7 +31,7 @@ namespace GrpcServer
 
         public event EventHandler<(long, string)> RecivedFilePrivateHandler; // userId, content (pfad)
         public event EventHandler<(long, long, string)> RecivedFileGroupHandler; // roomId, userId, content (pfad)
-
+        
         public override Task<Recived> RequestedUserPrivate(RequestUserMsg request, ServerCallContext context)
         {
             RequestedUserHandler?.Invoke(this, request.Ip);
@@ -55,7 +59,7 @@ namespace GrpcServer
         public override Task<Recived> PrivateMessageRecived(PrivateMessage request, ServerCallContext _)
         {
             PrivateMessageRecivedHandler?.Invoke(this, (request.Id, request.Content));
-            return Task.FromResult(new Recived
+            return Task.FromResult(new Recived 
             {
                 Done = true
             });

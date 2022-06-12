@@ -12,8 +12,8 @@ namespace Sigma.Viewmodels
 {
     public class WelcomeViewModel : BaseViewModel, ICloseWindow
     {
-        static string[] simaMaleRules = new string[]
-        {
+        static string[] simaMaleRules = new string[] 
+        { 
             "Isolation is a way to know ourselves.",
             "If you’re lonely when you are alone, you’re in bad company.",
             "You cannot be lonely if you like the person you’re alone with.",
@@ -36,8 +36,8 @@ namespace Sigma.Viewmodels
                 if (value != name)
                 {
                     name = value;
-                    RaisePropertyChanged();
-                    ClickCommand.RaiseCanExecuteChanged();
+                    this.RaisePropertyChanged();
+                    this.ClickCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -45,7 +45,7 @@ namespace Sigma.Viewmodels
         public string SigmaRule
         {
             get { return sigmaRule; }
-            set
+            set 
             {
                 sigmaRule = value;
                 RaisePropertyChanged();
@@ -63,11 +63,11 @@ namespace Sigma.Viewmodels
             ClickCommand = new DelegateCommand(
             _ =>
             {
-                return !string.IsNullOrEmpty(Name);
+                return !string.IsNullOrEmpty(this.Name);
             },
             _ =>
             {
-                Properties.Settings.Default.Name = Name;
+                Properties.Settings.Default.Name = this.Name;
                 Properties.Settings.Default.Save();
                 CloseAction();
             });

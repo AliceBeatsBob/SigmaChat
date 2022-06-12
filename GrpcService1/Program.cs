@@ -3,8 +3,16 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
+using Grpc.Core;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace GrpcServer
 {

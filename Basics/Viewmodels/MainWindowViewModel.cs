@@ -3,11 +3,12 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Grpc.Core;
-using GrpcServer;
 using Sigma.Commands;
 using Sigma.Interfaces;
 using Sigma.Models;
+using Grpc.Core;
+using GrpcServer;
+using GrpcShared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,6 +18,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Threading;
 
 namespace Sigma.Viewmodels
 {
@@ -92,22 +94,22 @@ namespace Sigma.Viewmodels
                 if (value != newChatroom)
                 {
                     newChatroom = value;
-                    RaisePropertyChanged();
+                    this.RaisePropertyChanged();
                 }
             }
         }
 
         public ChatRoomViewModel SelectedChatRoom
         {
-            get => selectedChatRoom;
+            get => this.selectedChatRoom;
             set
             {
-                if (value != selectedChatRoom)
+                if (value != this.selectedChatRoom)
                 {
                     if (SelectedChatRoom != null) //if(SelectedChatRoom.LeavGroupChatEventHandler != null)
                         SelectedChatRoom.LeavGroupChatEventHandler -= (sender, _) => LeaveGroupchat(sender);
-                    selectedChatRoom = value;
-                    RaisePropertyChanged();
+                    this.selectedChatRoom = value;
+                    this.RaisePropertyChanged();
                     if (value != null)
                         SelectedChatRoom.LeavGroupChatEventHandler += (sender, _) => LeaveGroupchat(sender);
                 }
@@ -121,8 +123,8 @@ namespace Sigma.Viewmodels
             {
                 if (chatrooms != value)
                 {
-                    chatrooms = value;
-                    RaisePropertyChanged();
+                    this.chatrooms = value;
+                    this.RaisePropertyChanged();
                 }
             }
         }
@@ -152,7 +154,7 @@ namespace Sigma.Viewmodels
 
             Chatrooms = new ObservableCollection<ChatRoomViewModel>();
 
-            AddChatroomCommand = new DelegateCommand(
+            this.AddChatroomCommand = new DelegateCommand(
             _ =>
             {
                 var addVm = new AddContacsViewModel();
@@ -174,7 +176,7 @@ namespace Sigma.Viewmodels
                 }
             });
 
-            SettingsCommand = new DelegateCommand(
+            this.SettingsCommand = new DelegateCommand(
             _ =>
             {
                 SwaptoSetting?.Invoke(this, EventArgs.Empty);
@@ -532,13 +534,13 @@ namespace Sigma.Viewmodels
                             await grpcSender.LeaveGroup(participant.Ip, ((Groupchat)((ChatRoomViewModel)sender).ChatRoom).RoomId, Contacts[0].UserId);
                         }
                         catch { }
-                    foreach (ChatRoomViewModel chatRoomViewModel1 in Chatrooms)
-                        if (chatRoomViewModel1.ChatRoom is Groupchat groupchat1 && groupchat1.RoomId == ((Groupchat)((ChatRoomViewModel)sender).ChatRoom).RoomId)
+                    foreach(ChatRoomViewModel chatRoomViewModel1 in Chatrooms)
+                        if(chatRoomViewModel1.ChatRoom is Groupchat groupchat1 && groupchat1.RoomId == ((Groupchat)((ChatRoomViewModel)sender).ChatRoom).RoomId)
                         {
                             Chatrooms.Remove(chatRoomViewModel1);
                             break;
                         }
-                    LeftGroup?.Invoke(this, EventArgs.Empty);
+                    this.LeftGroup?.Invoke(this, EventArgs.Empty);
                     break;
                 }
         }

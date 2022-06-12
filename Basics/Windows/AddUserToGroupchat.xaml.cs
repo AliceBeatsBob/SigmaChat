@@ -30,8 +30,8 @@ namespace Sigma.Windows
 
         private void btn_addIP_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = true;
-            Close();
+            this.DialogResult = true;
+            this.Close();
         }
     }
 }

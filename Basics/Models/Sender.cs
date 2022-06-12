@@ -3,12 +3,14 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
+using Sigma.Interfaces;
 using Google.Protobuf;
 using Grpc.Net.Client;
-using Sigma.Interfaces;
+using GrpcShared;
 using System;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Sigma.Models
@@ -147,7 +149,7 @@ namespace Sigma.Models
             {
                 while ((bytesRead = bs.Read(buffer, 0, MAX_BUFFER)) != 0) //reading 1mb chunks at a time
                 {
-                    await stream.RequestStream.WriteAsync(new Chunk() { FileName = Path.GetFileName(filePath).Replace(' ', '-'), Content = ByteString.CopyFrom(buffer), SenderId = senderId });
+                    await stream.RequestStream.WriteAsync(new Chunk() {FileName = Path.GetFileName(filePath).Replace(' ', '-'), Content = ByteString.CopyFrom(buffer), SenderId = senderId});
                 }
             }
 

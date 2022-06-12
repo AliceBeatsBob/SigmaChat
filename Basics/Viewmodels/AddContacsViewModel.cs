@@ -84,7 +84,7 @@ namespace Sigma.Viewmodels
                 if (value != _GroupName)
                 {
                     _GroupName = value;
-                    RaisePropertyChanged();
+                    this.RaisePropertyChanged();
                     CreateGroupButtonEnabled = !String.IsNullOrEmpty(GroupName);
                 }
             }
@@ -96,7 +96,7 @@ namespace Sigma.Viewmodels
             set
             {
                 createGroupButtonEnabled = value;
-                RaisePropertyChanged();
+                this.RaisePropertyChanged();
             }
         }
 
@@ -105,7 +105,7 @@ namespace Sigma.Viewmodels
         {
             IpEnabled = true;
             GroupEnabled = false;
-            RadioCheckedCommand = new DelegateCommand((o) =>
+            this.RadioCheckedCommand = new DelegateCommand((o) =>
             {
                 string selected = (string)o;
                 if (selected == "IP")
