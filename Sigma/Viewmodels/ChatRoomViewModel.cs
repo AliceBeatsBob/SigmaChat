@@ -58,22 +58,12 @@ namespace Sigma.Viewmodels
                 },
                 _ =>
                 {
-                    var addUserVm = new AddUserToGroupChatViewModel();
-                    AddUserToGroupChat addUser = new() { AddUserToGroupChatViewModel = addUserVm };
-                    addUser.Resources = MainWindow.Instance.Resources;
-                    var result = addUser.ShowDialog();
-                    if (result == true)
-                    {
-                        AddUserToChatroom(IPAddress.Parse(addUserVm.IpField));
-                    }
+                    AddUserToGroupchat();
                 });
             this.LeavGroupChatCommand = new DelegateCommand(
                 _ =>
                 {
-
-                    var result = MessageBox.Show(Application.Current.FindResource("StrLeaveGroupMsg").ToString(), Application.Current.FindResource("StrLeaveGroupMsgTitle").ToString(), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Cancel);
-                    if (result == MessageBoxResult.Yes)
-                        LeavGroupChatEventHandler?.Invoke(this, EventArgs.Empty);
+                    LeaveGroup();
                 });
             this.UploadCommand = new DelegateCommand(
                 _ =>
@@ -83,11 +73,35 @@ namespace Sigma.Viewmodels
             this.ListMembersCommand = new DelegateCommand(
                 _ =>
                 {
-                    var userListVm = new GroupMemberListViewModel(((Groupchat)ChatRoom).Participants, ChatRoom.Name);
-                    GroupMemberList memberList = new() { GroupMemberListViewModel = userListVm };
-                    memberList.Resources = MainWindow.Instance.Resources;
-                    memberList.ShowDialog();
+                    ListGroupchatParticipants();
                 });
+        }
+
+        private void ListGroupchatParticipants()
+        {
+            var userListVm = new GroupMemberListViewModel(((Groupchat)ChatRoom).Participants, ChatRoom.Name);
+            GroupMemberList memberList = new() { GroupMemberListViewModel = userListVm };
+            memberList.Resources = MainWindow.Instance.Resources;
+            memberList.ShowDialog();
+        }
+
+        private void AddUserToGroupchat()
+        {
+            var addUserVm = new AddUserToGroupChatViewModel();
+            AddUserToGroupChat addUser = new() { AddUserToGroupChatViewModel = addUserVm };
+            addUser.Resources = MainWindow.Instance.Resources;
+            var result = addUser.ShowDialog();
+            if (result == true)
+            {
+                AddUserToChatroom(IPAddress.Parse(addUserVm.IpField));
+            }
+        }
+
+        private void LeaveGroup()
+        {
+            var result = MessageBox.Show(Application.Current.FindResource("StrLeaveGroupMsg").ToString(), Application.Current.FindResource("StrLeaveGroupMsgTitle").ToString(), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Cancel);
+            if (result == MessageBoxResult.Yes)
+                LeavGroupChatEventHandler?.Invoke(this, EventArgs.Empty);
         }
 
         private async void SendFile()
@@ -150,6 +164,11 @@ namespace Sigma.Viewmodels
         /// </summary>
         private async void AddMessage()
         {
+            if (CurrentMessage.StartsWith('/'))
+            {
+                ChatCommandParser();
+                return;
+            }
             this.ChatRoom.ChatHistory.Add(new Message(ChatRoom.Me, currentMessage));
             MessageSentBringChatToTopHandler?.Invoke(this, EventArgs.Empty);
             if (this.ChatRoom is PrivateChat)
@@ -180,6 +199,59 @@ namespace Sigma.Viewmodels
                 }
             }
             this.CurrentMessage = "";
+        }
+
+        private void ChatCommandParser()
+        {
+            string command = CurrentMessage[1..];
+            switch (command.ToLower())
+            {
+                case "leave":
+                    LeaveGroup();
+                    break;
+                case "add":
+                    AddUserToGroupchat();
+                    break;
+                case "participants":
+                case "members":
+                    ListGroupchatParticipants();
+                    break;
+                case string c when c.StartsWith("id"):
+                    if (c == "id")
+                        CurrentMessage = ChatRoom.Me.UserId.ToString();
+                    else
+                    {
+                        string name = c.Split(' ')[1];
+                        if(ChatRoom is Groupchat groupchat)
+                        {
+                            foreach(User user in groupchat.Participants)
+                                if(user.UserName == name)
+                                {
+                                    CurrentMessage = user.UserId.ToString();
+                                    break;
+                                }
+                        }
+                    }
+                    break;
+                case string c when c.StartsWith("ip"):
+                    if (c == "ip")
+                        CurrentMessage = ChatRoom.Me.Ip.ToString();
+                    else
+                    {
+                        string name = c.Split(' ')[1];
+                        if (ChatRoom is Groupchat groupchat)
+                        {
+                            foreach (User user in groupchat.Participants)
+                                if (user.UserName == name)
+                                {
+                                    CurrentMessage = user.Ip.ToString();
+                                    break;
+                                }
+                        }
+
+                    }
+                    break;
+            }
         }
     }
 }

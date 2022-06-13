@@ -35,7 +35,7 @@ namespace Sigma.UserControls
 
         private void ScrollDown()
         {
-            if(lstChat != null)
+            if(lstChat.Items.Count != 0)
                 lstChat.ScrollIntoView(lstChat.Items[lstChat.Items.Count - 1]);
         }
 
