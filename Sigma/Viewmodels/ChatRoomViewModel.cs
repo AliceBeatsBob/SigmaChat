@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Collections.Generic;
 
 namespace Sigma.Viewmodels
 {
@@ -129,7 +130,7 @@ namespace Sigma.Viewmodels
                         {
                             try
                             {
-                                await ChatRoom.Sender.SendFileGroupSteam(groupchat.Participants[i].Ip, ((Groupchat)ChatRoom).RoomId, ChatRoom.Me.UserId, filePath);                                
+                                await ChatRoom.Sender.SendFileGroupSteam(groupchat.Participants[i].Ip, ((Groupchat)ChatRoom).RoomId, ChatRoom.Me.UserId, filePath);
                             }
                             catch
                             {
@@ -155,7 +156,7 @@ namespace Sigma.Viewmodels
 
         private bool CanAddMessage()
         {
-            return !string.IsNullOrEmpty(this.CurrentMessage);
+            return !string.IsNullOrEmpty(this.CurrentMessage) && !string.IsNullOrWhiteSpace(this.CurrentMessage);
         }
 
         /// <summary>
@@ -186,6 +187,7 @@ namespace Sigma.Viewmodels
             else
             {
                 Groupchat groupchat = (Groupchat)ChatRoom;
+                string errors = "";
                 for (int i = 0; i < groupchat.Participants.Count; i++)
                 {
                     try
@@ -194,9 +196,10 @@ namespace Sigma.Viewmodels
                     }
                     catch
                     {
-                        MessageBox.Show($"Could not send {((Groupchat)ChatRoom).Name} message to {groupchat.Participants[i].UserName}", "Could not send message");
+                        errors += "\n" + groupchat.Participants[i].UserName;
                     }
                 }
+                MessageBox.Show($"Could not send from {((Groupchat)ChatRoom).Name} message to {errors}", "Could not send message");
             }
             this.CurrentMessage = "";
         }
@@ -222,10 +225,10 @@ namespace Sigma.Viewmodels
                     else
                     {
                         string name = c.Split(' ')[1];
-                        if(ChatRoom is Groupchat groupchat)
+                        if (ChatRoom is Groupchat groupchat)
                         {
-                            foreach(User user in groupchat.Participants)
-                                if(user.UserName == name)
+                            foreach (User user in groupchat.Participants)
+                                if (user.UserName == name)
                                 {
                                     CurrentMessage = user.UserId.ToString();
                                     break;
@@ -251,6 +254,43 @@ namespace Sigma.Viewmodels
 
                     }
                     break;
+                case string c when c.StartsWith("sus"):
+                    if (c == "sus")
+                        CurrentMessage = "░██████╗██╗░░░██╗░██████╗ \n" +
+                                         "██╔════════╝ ██║░░░██║██╔══════╝ \n" +
+                                         "░╚█████╗ ██║░░░██║╚█████╗░ \n" +
+                                         "░░╚════██╗██║░░░██║░╚═════██╗ \n" +
+                                         "██████╔╝╚██████╔╝██████╔╝ \n" +
+                                         "╚══════════╝░░╚═════════╝░╚═════════╝░";
+                    break;
+                case string c when c.StartsWith("amogus"):
+                    c = c.Replace(" ", "");
+                    if (c == "amogus")
+                        CurrentMessage = "ඞ";
+                    else if (c.StartsWith("amogusl"))
+                        CurrentMessage = 
+                            "                                  ⬛⬛⬛⬛⬛⬛ \n" +
+                            "                                ⬛🟥🟥🟪🟪🟪🟥🟥⬛ \n" +
+                            "                              ⬛🟥🟥🟥🟥🟥🟥🟥🟥⬛ \n" +
+                            "                           ⬛🟥🟥🟥🟥⬛⬛⬛⬛⬛⬛ \n" +
+                            "                           ⬛🟥🟥🟥⬛🟪🟪🟪🟪🟪🟪🟪🟪⬛ \n" +
+                            "                           ⬛🟥🟥⬛🟪🟪🟪🟪🟪🟪🟪🟪🟪⬛ \n" +
+                            "                      ⬛⬛⬛🟥🟥⬛🟪🟪🟪🟪🟪🟪🟪🟪🟪⬛ \n" +
+                            "                     ⬛🟥🟥⬛🟥🟥⬛🟪🟪🟪🟦🟦🟦🟦🟪⬛ \n" +
+                            "                     ⬛🟥🟥⬛🟥🟥🟥⬛🟪🟪🟪🟪🟪🟪⬛ \n" +
+                            "                     ⬛🟥🟥⬛🟥🟥🟥🟥⬛⬛⬛⬛⬛ \n" +
+                            "                     ⬛🟥🟥⬛🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥⬛ \n" +
+                            "                     ⬛🟥🟥⬛🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥⬛ \n"+
+                            "                     ⬛🟥🟥⬛🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥⬛ \n"+
+                            "                     ⬛🟥🟥⬛🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥⬛ \n"+
+                            "                     ⬛🟥🟥⬛🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥⬛ \n"+
+                            "                     ⬛🟥🟥⬛🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥⬛ \n" +
+                            "                      ⬛⬛⬛🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥⬛ \n" +
+                            "                         ⬛🟥🟥🟥⬛⬛⬛⬛🟥🟥🟥⬛ \n" +
+                            "                        ⬛🟥🟥🟥⬛        ⬛🟥🟥🟥⬛ \n" +
+                            "                        ⬛🟥🟥🟥⬛        ⬛🟥🟥🟥⬛ \n" +
+                            "                         ⬛⬛⬛            ⬛⬛⬛";
+                            break;
             }
         }
     }
