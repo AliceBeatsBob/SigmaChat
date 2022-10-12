@@ -11,10 +11,10 @@
 		<DebugType>embedded</DebugType>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 
-		<!--<PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>-->
-		<!--<SelfContained>true</SelfContained>
+		<PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
+		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x86</RuntimeIdentifier>
-		<PublishReadyToRun>true</PublishReadyToRun>-->
+		<PublishReadyToRun>true</PublishReadyToRun>
 	</PropertyGroup>
 
 	<!--<PropertyGroup>

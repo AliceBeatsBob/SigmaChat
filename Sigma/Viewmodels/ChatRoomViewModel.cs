@@ -125,6 +125,7 @@ namespace Sigma.Viewmodels
                         catch { }
                     else
                     {
+                        string errors = "";
                         Groupchat groupchat = (Groupchat)ChatRoom;
                         for (int i = 0; i < groupchat.Participants.Count; i++)
                         {
@@ -134,8 +135,10 @@ namespace Sigma.Viewmodels
                             }
                             catch
                             {
-                                //MessageBox.Show($"Could not send {((Groupchat)ChatRoom).Name} message to {groupchat.Participants[i].UserName}", "Could not send message");
+                                errors += "\n" + groupchat.Participants[i].UserName;
                             }
+                            if(errors.Length > 0)
+                                MessageBox.Show($"Could not send {((Groupchat)ChatRoom).Name} message to {errors}", "Could not send message");
                         }
                     }
                     ChatRoom.ChatHistory.Add(new Message(ChatRoom.Me, $"FILE: {filePath}"));
