@@ -199,7 +199,8 @@ namespace Sigma.Viewmodels
                         errors += "\n" + groupchat.Participants[i].UserName;
                     }
                 }
-                MessageBox.Show($"Could not send from {((Groupchat)ChatRoom).Name} message to {errors}", "Could not send message");
+                if(errors.Length > 0)
+                    MessageBox.Show($"Could not send from {((Groupchat)ChatRoom).Name} message to {errors}", "Could not send message");
             }
             this.CurrentMessage = "";
         }

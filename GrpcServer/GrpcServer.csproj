@@ -10,7 +10,7 @@
 
 		<!--<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
-		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<RuntimeIdentifier>win-x86</RuntimeIdentifier>
 		<PublishReadyToRun>true</PublishReadyToRun>-->
 	</PropertyGroup>
 
