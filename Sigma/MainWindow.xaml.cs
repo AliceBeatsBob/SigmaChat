@@ -5,6 +5,7 @@
 
 using Sigma.Viewmodels;
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
@@ -22,6 +23,7 @@ namespace Sigma
     public partial class MainWindow : Window
     {
         public static MainWindow Instance { get; private set; }
+        public static EventHandler OnClose;
         public MainWindow()
         {
             // gets the windows language if language is not in settings (first time starting or something went wrong)
@@ -66,7 +68,7 @@ namespace Sigma
             this.Resources["Userlistboxcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.UserListBoxColor));
             this.Resources["Textfieldcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.TextfielColor));
             this.Resources["Buttoncolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.ButtonColor));
-            
+
             Instance = this;
         }
 
@@ -219,6 +221,11 @@ namespace Sigma
                         return "Alice > Bob";
                 }
             }
+        }
+
+        private void WindowClosing(object? sender, CancelEventArgs e)
+        {
+            OnClose.Invoke(sender, e);
         }
     }
 }

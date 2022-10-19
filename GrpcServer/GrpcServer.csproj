@@ -8,10 +8,10 @@
 
 		<Nullable>enable</Nullable>
 
-		<PublishSingleFile>true</PublishSingleFile>
+		<!--<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x86</RuntimeIdentifier>
-		<PublishReadyToRun>true</PublishReadyToRun>
+		<PublishReadyToRun>true</PublishReadyToRun>-->
 	</PropertyGroup>
 
 	<ItemGroup>

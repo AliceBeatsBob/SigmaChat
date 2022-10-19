@@ -21,11 +21,10 @@ namespace Sigma.Viewmodels
         private bool createGroupButtonEnabled;
 
         public event EventHandler AddNewChatroom;
-        public DelegateCommand RadioCheckedCommand { get; set; }
-
         public DelegateCommand Addcommand { get; set; }
-
         public DelegateCommand Createcommand { get; set; }
+
+        public DelegateCommand RadioCheckedCommand { get; set; }
 
         public bool IpEnabled
         {
@@ -84,7 +83,7 @@ namespace Sigma.Viewmodels
                 if (value != _GroupName)
                 {
                     _GroupName = value;
-                    this.RaisePropertyChanged();
+                    RaisePropertyChanged();
                     CreateGroupButtonEnabled = !String.IsNullOrEmpty(GroupName);
                 }
             }
@@ -96,7 +95,7 @@ namespace Sigma.Viewmodels
             set
             {
                 createGroupButtonEnabled = value;
-                this.RaisePropertyChanged();
+                RaisePropertyChanged();
             }
         }
 
@@ -105,7 +104,7 @@ namespace Sigma.Viewmodels
         {
             IpEnabled = true;
             GroupEnabled = false;
-            this.RadioCheckedCommand = new DelegateCommand((o) =>
+            RadioCheckedCommand = new DelegateCommand((o) =>
             {
                 string selected = (string)o;
                 if (selected == "IP")
@@ -121,7 +120,7 @@ namespace Sigma.Viewmodels
             });
         }
 
-        static string SetIpField()
+        private static string SetIpField()
         {
             string ip = GetIpAddressFromHost();
             if (ip != null)
@@ -176,7 +175,7 @@ namespace Sigma.Viewmodels
             }
         }
 
-        static string GetSubnetMask(string ip)
+        private static string GetSubnetMask(string ip)
         {
             NetworkInterface[] Interfaces = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface Interface in Interfaces)

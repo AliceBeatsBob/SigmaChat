@@ -19,6 +19,13 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Threading;
+using System.IO;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
+using System.Xml.Serialization;
+using System.Linq;
+using System.Windows.Documents;
+using Sigma.Windows;
 
 namespace Sigma.Viewmodels
 {
@@ -138,6 +145,14 @@ namespace Sigma.Viewmodels
         public MainWindowViewModel()
         {
             //server.Run();
+            //MeAsUser = new User(IPAddress.Parse("69.69.69.69"), Properties.Settings.Default.Name, Properties.Settings.Default.Pfp);
+            Properties.Settings.Default.PropertyChanged += UpdateUser;
+            // Me as User
+            Contacts.Add(new User(IPAddress.Parse(GetIpAddressFromHost()), Properties.Settings.Default.Name, Properties.Settings.Default.Pfp, Properties.Settings.Default.UserId));
+
+            // NEW
+            LoadChatrooms();
+            MainWindow.OnClose += (_, _) => SaveChatrooms();
 
             RegisterOnServerEvents(services);
             server = new Grpc.Core.Server()
@@ -146,13 +161,6 @@ namespace Sigma.Viewmodels
                 Ports = { new ServerPort("0.0.0.0", 5000, ServerCredentials.Insecure) }
             };
             server.Start();
-
-            //MeAsUser = new User(IPAddress.Parse("69.69.69.69"), Properties.Settings.Default.Name, Properties.Settings.Default.Pfp);
-            Properties.Settings.Default.PropertyChanged += UpdateUser;
-            // Me as User
-            Contacts.Add(new User(IPAddress.Parse(GetIpAddressFromHost()), Properties.Settings.Default.Name, Properties.Settings.Default.Pfp, Properties.Settings.Default.UserId));
-
-            Chatrooms = new ObservableCollection<ChatRoomViewModel>();
 
             this.AddChatroomCommand = new DelegateCommand(
             _ =>
@@ -184,6 +192,177 @@ namespace Sigma.Viewmodels
 
             chatroomCollectionView = CollectionViewSource.GetDefaultView(Chatrooms);
             chatroomCollectionView.Filter = o => String.IsNullOrEmpty(Filter) ? true : ((ChatRoomViewModel)o).ChatRoom.Name.ToLower().Contains(Filter.ToLower());
+        }
+
+        private void LoadChatrooms()
+        {
+            var appdataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Sigma");
+            var chatroomsPath = Path.Combine(appdataPath, "chatrooms.txt");
+            var contactsPath = Path.Combine(appdataPath, "contacts.xml");
+            if (File.Exists(contactsPath))
+                try
+                {
+                    XmlSerializer xs = new XmlSerializer(typeof(List<User>));
+                    using (StreamReader rd = new StreamReader(contactsPath))
+                    {
+                        var importedContacts = xs.Deserialize(rd) as List<User>;
+                        Contacts.AddRange(importedContacts);
+                    }
+                }
+                catch { }
+
+            Chatrooms = new ObservableCollection<ChatRoomViewModel>();
+
+
+            if (File.Exists(chatroomsPath))
+            {
+                try
+                {
+                    var importedChatrooms = File.ReadAllText(chatroomsPath);
+                    //var chatroom = chatrooms.Split(new string[] { Environment.NewLine + Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                    var chatrooms = importedChatrooms.Split("\n\n", StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var room in chatrooms)
+                    {
+                        var chatroomLines = room.Split("\n");
+                        var importedChatroom = new ChatRoom();
+                        var i = 2;
+
+                        if (chatroomLines[0] == "PRIVATECHAT")
+                        {
+                            User user = new();
+                            foreach (var contact in Contacts)
+                                if (contact.UserId == long.Parse(chatroomLines[1].Split(':')[1][1..]))
+                                {
+                                    user = contact;
+                                    break;
+                                }
+                            importedChatroom = new PrivateChat(user, user.Picture, Contacts[0], grpcSender);
+                        }
+                        else
+                        {
+                            var chatroomId = chatroomLines[1].Split(':',2)[1][1..];
+                            var chatroomName = chatroomLines[2].Split(':',2)[1][1..];
+                            var chatroomPicture = chatroomLines[3].Split(':',2)[1][1..];
+                            i = 4;
+                            List<User> participants = new();
+                            foreach (var participantLine in chatroomLines[4..])
+                            {
+                                if (participantLine.StartsWith("Participant:"))
+                                {
+                                    User user = new();
+                                    foreach (var contact in Contacts)
+                                        if (contact.UserId == long.Parse(chatroomLines[i].Split(':',2)[1][1..]))
+                                        {
+                                            user = contact;
+                                            break;
+                                        }
+                                    participants.Add(user);
+                                    i++;
+                                }
+                                else
+                                    break;
+                            }
+                            importedChatroom = new Groupchat(long.Parse(chatroomId), chatroomName, chatroomPicture, Contacts[0], grpcSender) { Participants = participants };
+                        }
+
+                        // Import messages
+                        for (; i < chatroomLines.Length; i += 2)
+                        {
+                            //var user = (User)Contacts.Where(c => c.UserId == long.Parse(r[i].Split(':')[1])); // geht ned
+                            User user = new();
+                            foreach (var contact in Contacts)
+                                if (contact.UserId == long.Parse(chatroomLines[i].Split(':',2)[1][1..]))
+                                {
+                                    user = contact;
+                                    break;
+                                }
+                            var msg = chatroomLines[i + 1].Split(':', 2)[1][1..];
+                            if (i + 2 < chatroomLines.Length && !chatroomLines[i + 2].StartsWith("Message"))
+                            {
+                                i += 2;
+                                while (i < chatroomLines.Length && !chatroomLines[i].StartsWith("Message"))
+                                {
+                                    msg += "\n" + chatroomLines[i];
+                                    i++;
+                                }
+
+                                i -= 2;
+                            }
+
+                            importedChatroom.ChatHistory.Add(new Message(user, msg));
+                        }
+                        Chatrooms.Add(new ChatRoomViewModel(importedChatroom));
+                    }
+                }
+                catch { }
+            }
+        }
+
+        private void SaveChatrooms()
+        {
+            var appdataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Sigma");
+            var chatroomsPath = Path.Combine(appdataPath, "chatrooms.txt");
+            var contactsPath = Path.Combine(appdataPath, "contacts.xml");
+
+            if (Contacts.Count > 1)
+            {
+                File.Delete(contactsPath);
+                var con = Contacts.TakeLast(Contacts.Count - 1).ToList();
+                XmlSerializer xs = new XmlSerializer(typeof(List<User>));
+                using (StreamWriter wr = new StreamWriter(contactsPath))
+                {
+                    xs.Serialize(wr, con);
+                }
+            }
+
+            //xs = new XmlSerializer(typeof(ObservableCollection<ChatRoom>));
+            //using (StreamWriter wr = new StreamWriter(chatroomsPath))
+            //{
+            //    xs.Serialize(wr, Chatrooms);
+            //}
+
+            if (Chatrooms.Count > 0)
+            {
+                File.Delete(chatroomsPath);
+                foreach (var chatRoomViewModel in Chatrooms)
+                {
+                    if (chatRoomViewModel.ChatRoom is PrivateChat pc)
+                    {
+                        File.AppendAllText(chatroomsPath, $"PRIVATECHAT\n");
+                        File.AppendAllText(chatroomsPath, $"UserId: {pc.OtherUser.UserId}\n");
+                    }
+                    else if (chatRoomViewModel.ChatRoom is Groupchat gc)
+                    {
+                        File.AppendAllText(chatroomsPath, $"GROUPCHAT\n");
+                        File.AppendAllText(chatroomsPath, $"Chatroo id: {gc.RoomId}\n");
+                        File.AppendAllText(chatroomsPath, $"Chatroom name: {gc.Name}\n");
+                        File.AppendAllText(chatroomsPath, $"Chatroom picture: {gc.Picture}\n");
+                        foreach (var user in gc.Participants)
+                        {
+                            File.AppendAllText(chatroomsPath, $"Participant: {user.UserId}\n");
+                        }
+                    }
+
+                    foreach (var chat in chatRoomViewModel.ChatRoom.ChatHistory)
+                    {
+                        File.AppendAllText(chatroomsPath, $"Message sender id: {chat.Sender.UserId}\n");
+                        File.AppendAllText(chatroomsPath, $"Message content: {chat.Content}\n");
+                    }
+
+                    File.AppendAllText(chatroomsPath, $"\n");
+                }
+            }
+
+            //string json;
+            //try
+            //{
+            //    json = JsonConvert.SerializeObject(Chatrooms);
+            //}
+            //catch
+            //{
+            //    json = JsonSerializer.Serialize(Chatrooms);
+            //}
+            //File.WriteAllText(chatroomsPath, json);
         }
 
         /// <summary>
@@ -534,8 +713,8 @@ namespace Sigma.Viewmodels
                             await grpcSender.LeaveGroup(participant.Ip, ((Groupchat)((ChatRoomViewModel)sender).ChatRoom).RoomId, Contacts[0].UserId);
                         }
                         catch { }
-                    foreach(ChatRoomViewModel chatRoomViewModel1 in Chatrooms)
-                        if(chatRoomViewModel1.ChatRoom is Groupchat groupchat1 && groupchat1.RoomId == ((Groupchat)((ChatRoomViewModel)sender).ChatRoom).RoomId)
+                    foreach (ChatRoomViewModel chatRoomViewModel1 in Chatrooms)
+                        if (chatRoomViewModel1.ChatRoom is Groupchat groupchat1 && groupchat1.RoomId == ((Groupchat)((ChatRoomViewModel)sender).ChatRoom).RoomId)
                         {
                             Chatrooms.Remove(chatRoomViewModel1);
                             break;
@@ -746,7 +925,11 @@ namespace Sigma.Viewmodels
                 User senderUser = GetUser(senderId);
                 MainWindow.Instance.Dispatcher.Invoke(delegate ()
                 {
-                    chatRoom.ChatHistory.Add(new Message(senderUser, content));
+                    try
+                    {
+                        chatRoom.ChatHistory.Add(new Message(senderUser, content));
+                    }
+                    catch { }
                 });
             }
         }

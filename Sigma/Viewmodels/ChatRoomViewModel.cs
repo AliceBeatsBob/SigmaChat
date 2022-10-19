@@ -78,6 +78,9 @@ namespace Sigma.Viewmodels
                 });
         }
 
+        /// <summary>
+        /// Opens a new window to display all group chat participants
+        /// </summary>
         private void ListGroupchatParticipants()
         {
             var userListVm = new GroupMemberListViewModel(((Groupchat)ChatRoom).Participants, ChatRoom.Name);
@@ -86,6 +89,10 @@ namespace Sigma.Viewmodels
             memberList.ShowDialog();
         }
 
+        /// <summary>
+        /// Opens a new window so the user can input the ip from the other user they want to add to the group chat
+        /// and then calls the AddUserToChatroom method
+        /// </summary>
         private void AddUserToGroupchat()
         {
             var addUserVm = new AddUserToGroupChatViewModel();
@@ -98,6 +105,10 @@ namespace Sigma.Viewmodels
             }
         }
 
+        /// <summary>
+        /// Displays a dialog box to ask the user if he really wants to leave the group chat
+        /// if so then the LeavGroupChatEventHandler is invoked
+        /// </summary>
         private void LeaveGroup()
         {
             var result = MessageBox.Show(Application.Current.FindResource("StrLeaveGroupMsg").ToString(), Application.Current.FindResource("StrLeaveGroupMsgTitle").ToString(), MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Cancel);
@@ -105,6 +116,10 @@ namespace Sigma.Viewmodels
                 LeavGroupChatEventHandler?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Sends a file to all chat participants
+        /// and informs the user of all the participants it could not be sent to with a dialog box
+        /// </summary>
         private async void SendFile()
         {
             string[] validExtensions = new string[] { "jpg", "jpeg", "png", "zip", "rar", "exe", "ඞ", "sus" };
@@ -148,6 +163,10 @@ namespace Sigma.Viewmodels
             }
         }
 
+        /// <summary>
+        /// Adds the user with the according ip to the group chat
+        /// </summary>
+        /// <param name="addedUserIp">The ip of the user who should be added to the group chat</param>
         private async void AddUserToChatroom(IPAddress addedUserIp)
         {
             try
@@ -157,21 +176,28 @@ namespace Sigma.Viewmodels
             catch { }
         }
 
+        /// <summary>
+        /// Sets the send button to enabled if the message box content is valid
+        /// </summary>
+        /// <returns>A bool to tell the wpf item if it is enabled or disabled</returns>
         private bool CanAddMessage()
         {
             return !string.IsNullOrEmpty(this.CurrentMessage) && !string.IsNullOrWhiteSpace(this.CurrentMessage);
         }
 
         /// <summary>
-        /// Adds the message the user sent
-        /// and sends it to the others
+        /// Adds the message the user sent to the chat
+        /// and sends it to the other participant(s)
+        /// OR
+        /// if the message box content starts with a '/'
+        /// it calls the ChatCommandParser
         /// </summary>
         private async void AddMessage()
         {
             if (CurrentMessage.StartsWith('/'))
             {
                 ChatCommandParser();
-                return;
+                //return;
             }
             this.ChatRoom.ChatHistory.Add(new Message(ChatRoom.Me, currentMessage));
             MessageSentBringChatToTopHandler?.Invoke(this, EventArgs.Empty);
@@ -208,6 +234,9 @@ namespace Sigma.Viewmodels
             this.CurrentMessage = "";
         }
 
+        /// <summary>
+        /// Replaces the message box content with the according command value
+        /// </summary>
         private void ChatCommandParser()
         {
             string command = CurrentMessage[1..];

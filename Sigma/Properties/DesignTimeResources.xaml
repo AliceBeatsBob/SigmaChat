@@ -5,7 +5,6 @@
     <ResourceDictionary x:Key="0">
         <ResourceDictionary.MergedDictionaries>
             <ResourceDictionary Source="languages/lang_de.xaml"/>
-            <!--<ResourceDictionary Source="/Waf.InformationManager.Common.Presentation;Component/Resources/ConverterResources.xaml"/>-->
         </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
 

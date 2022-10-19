@@ -61,7 +61,7 @@ namespace Sigma.Viewmodels
         /// <summary>
         /// Returns the part of the ip which is constant because of the subnetmask
         /// </summary>
-        /// <returns>a string of the fix part of an ip</returns>
+        /// <returns>A string of the constant part of an ip</returns>
         static string SetIpField()
         {
             string ip = GetIpAddressFromHost();
@@ -92,9 +92,9 @@ namespace Sigma.Viewmodels
         }
 
         /// <summary>
-        /// Returns the ip address of the host computer
+        /// Gets the ip address of the host computer and returns it
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The ip address as a string</returns>
         private static string GetIpAddressFromHost()
         {
             string hostname = Dns.GetHostName();
@@ -122,10 +122,10 @@ namespace Sigma.Viewmodels
         }
 
         /// <summary>
-        /// Gets the subnetmask from the host computer
+        /// Gets the subnet mask from the host computer and returns it
         /// </summary>
-        /// <param name="ip">The ip address so the method knows which network adapter to get the subnetmask from</param>
-        /// <returns></returns>
+        /// <param name="ip">The ip address so the method knows which network adapter to get the subnet mask from</param>
+        /// <returns>The subnet mask as a string</returns>
         static string GetSubnetMask(string ip)
         {
             NetworkInterface[] Interfaces = NetworkInterface.GetAllNetworkInterfaces();

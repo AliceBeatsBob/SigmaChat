@@ -3,6 +3,9 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
+using System;
+using System.Text.Json.Serialization;
+
 namespace Sigma.Models
 {
     public class Message
