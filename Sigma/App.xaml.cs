@@ -71,7 +71,7 @@ namespace Sigma
                     }
                 }
             }
-            return ipAddrList.ToArray().Length > 0 ? ipAddrList.ToArray() : null;
+            return ipAddrList.ToArray();
         }
     }
 }
