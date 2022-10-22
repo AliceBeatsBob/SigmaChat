@@ -16,7 +16,30 @@
 
     <Window.Resources>
         <converter:ListEmptyToVisibilityConverter x:Key="ListEmptyVisConv"/>
+        <DataTemplate x:Key="OverlayIcon">
+            <Viewbox>
+                <Grid >
+                    <!--<Ellipse Fill="#e74c3b"
+                             Stroke="Transparent"
+                             StrokeThickness="0"/>-->
+                    <TextBlock Text="{Binding}"
+                               TextAlignment="Center"
+                               Foreground="Red"
+                               Margin="0"
+                               FontWeight="bold"
+                               VerticalAlignment="Center">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="0" />
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Grid>
+            </Viewbox>
+        </DataTemplate>
     </Window.Resources>
+
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo/>
+    </Window.TaskbarItemInfo>
 
     <Window.DataContext>
         <vm:MainWindowViewModel></vm:MainWindowViewModel>

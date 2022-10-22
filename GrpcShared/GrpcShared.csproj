@@ -2,15 +2,15 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-
 		<DebugType>embedded</DebugType>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
 
-		<!--<PublishSingleFile>true</PublishSingleFile>
+        <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+        <!--<SelfContained>false</SelfContained>-->
+        <!--<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
-		<RuntimeIdentifier>win-x86</RuntimeIdentifier>
 		<PublishReadyToRun>true</PublishReadyToRun>-->
 	</PropertyGroup>
 

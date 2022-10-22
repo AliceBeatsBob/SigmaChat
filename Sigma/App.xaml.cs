@@ -3,9 +3,15 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
+using Microsoft.Toolkit.Uwp.Notifications;
 using Sigma.Interfaces;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Windows;
+//using Windows.ApplicationModel.Activation;
+//using Windows.Foundation.Collections;
 
 namespace Sigma
 {
@@ -48,6 +54,24 @@ namespace Sigma
                     break;
             }
             Application.Current.Resources.MergedDictionaries.Add(dictionary);
+        }
+        public static string[] GetAllLocalIPv4(NetworkInterfaceType _type)
+        {
+            List<string> ipAddrList = new List<string>();
+            foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (item.NetworkInterfaceType == _type && item.OperationalStatus == OperationalStatus.Up)
+                {
+                    foreach (UnicastIPAddressInformation ip in item.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            ipAddrList.Add(ip.Address.ToString());
+                        }
+                    }
+                }
+            }
+            return ipAddrList.ToArray().Length > 0 ? ipAddrList.ToArray() : null;
         }
     }
 }

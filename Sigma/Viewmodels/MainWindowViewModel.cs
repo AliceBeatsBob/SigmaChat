@@ -3,29 +3,32 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Sigma.Commands;
-using Sigma.Interfaces;
-using Sigma.Models;
 using Grpc.Core;
 using GrpcServer;
 using GrpcShared;
+using Microsoft.Toolkit.Uwp.Notifications;
+using Sigma.Commands;
+using Sigma.Interfaces;
+using Sigma.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Threading;
-using System.IO;
-using Newtonsoft.Json;
-using JsonSerializer = System.Text.Json.JsonSerializer;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Xml.Serialization;
-using System.Linq;
-using System.Windows.Documents;
-using Sigma.Windows;
+using Windows.Networking.Connectivity;
 
 namespace Sigma.Viewmodels
 {
@@ -33,6 +36,8 @@ namespace Sigma.Viewmodels
     {
         public static List<Message> UnsentMessages = new();
         public static List<User> Contacts = new();
+        public static List<long> UnreadMessages = new();
+        private static User System = new User(IPAddress.Parse("0.0.0.0"), "SYSTEM", "", -1);
         //public static User MeAsUser = new User(IPAddress.Parse("69.69.69.69"), Properties.Settings.Default.Name, Properties.Settings.Default.Pfp);
         //public static User MeAsUser;
 
@@ -57,7 +62,7 @@ namespace Sigma.Viewmodels
         public DelegateCommand AddChatroomCommand { get; }
 
         //public DelegateCommand CloseCommand { get; set; }
-        #endregion     
+        #endregion
 
         public event EventHandler SwaptoChat;
         public event EventHandler SwaptoSetting;
@@ -117,6 +122,12 @@ namespace Sigma.Viewmodels
                         SelectedChatRoom.LeavGroupChatEventHandler -= (sender, _) => LeaveGroupchat(sender);
                     this.selectedChatRoom = value;
                     this.RaisePropertyChanged();
+                    if(SelectedChatRoom != null)
+                        if (SelectedChatRoom.ChatRoom is PrivateChat pc)
+                            UnreadMessages.RemoveAll(i => i == pc.OtherUser.UserId);
+                        else
+                            UnreadMessages.RemoveAll(i => i == ((Groupchat)SelectedChatRoom.ChatRoom).RoomId);
+                    UpdateCount_Click();
                     if (value != null)
                         SelectedChatRoom.LeavGroupChatEventHandler += (sender, _) => LeaveGroupchat(sender);
                 }
@@ -141,18 +152,25 @@ namespace Sigma.Viewmodels
         private GreeterService services = new GrpcServer.GreeterService();
         private Server server;
         private ISender grpcSender = new GrpcSender();
-
+        
         public MainWindowViewModel()
         {
             //server.Run();
             //MeAsUser = new User(IPAddress.Parse("69.69.69.69"), Properties.Settings.Default.Name, Properties.Settings.Default.Pfp);
             Properties.Settings.Default.PropertyChanged += UpdateUser;
             // Me as User
-            Contacts.Add(new User(IPAddress.Parse(GetIpAddressFromHost()), Properties.Settings.Default.Name, Properties.Settings.Default.Pfp, Properties.Settings.Default.UserId));
+            Contacts.Add(new User(IPAddress.Parse(GetIp()), Properties.Settings.Default.Name, Properties.Settings.Default.Pfp, Properties.Settings.Default.UserId));
+
+            string GetIp()
+            {
+                return App.GetAllLocalIPv4(NetworkInterfaceType.Wireless80211).FirstOrDefault() ??
+                       App.GetAllLocalIPv4(NetworkInterfaceType.Ethernet).FirstOrDefault();
+            }
 
             // NEW
             LoadChatrooms();
             MainWindow.OnClose += (_, _) => SaveChatrooms();
+            UpdateCount_Click();
 
             RegisterOnServerEvents(services);
             server = new Grpc.Core.Server()
@@ -194,11 +212,52 @@ namespace Sigma.Viewmodels
             chatroomCollectionView.Filter = o => String.IsNullOrEmpty(Filter) ? true : ((ChatRoomViewModel)o).ChatRoom.Name.ToLower().Contains(Filter.ToLower());
         }
 
+        private void UpdateCount_Click()
+        {
+            MainWindow.Instance.Dispatcher.Invoke(delegate ()
+            {
+                int iconWidth = 40;
+                int iconHeight = 40;
+
+                RenderTargetBitmap bmp = new RenderTargetBitmap(iconWidth, iconHeight, 90, 90, PixelFormats.Default);
+                ContentControl root = new ContentControl();
+
+                root.ContentTemplate = ((DataTemplate)MainWindow.Instance.Resources["OverlayIcon"]);
+                int countText = UnreadMessages.Count;
+                string txt = "";
+                if (countText > 0)
+                {
+                    if (countText.ToString().Length == 1)
+                        txt = $"  {countText}  ";
+                    else if (countText.ToString().Length == 2)
+                        txt = $"  {countText}  ";
+                    else
+                        txt = $" {countText} ";
+                    if (countText > 100)
+                    {
+                        countText = 99;
+                        txt = " 99+";
+                    }
+                }
+
+                root.Content = txt;
+
+                root.Arrange(new Rect(-5, 0, iconWidth + 10, iconHeight + 10));
+
+                bmp.Render(root);
+
+                MainWindow.Instance.TaskbarItemInfo.Overlay = (ImageSource)bmp;
+            });
+        }
+
+
         private void LoadChatrooms()
         {
             var appdataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Sigma");
             var chatroomsPath = Path.Combine(appdataPath, "chatrooms.txt");
             var contactsPath = Path.Combine(appdataPath, "contacts.xml");
+            var unseenMessages = Path.Combine(appdataPath, "unseenMessages.json");
+
             if (File.Exists(contactsPath))
                 try
                 {
@@ -212,7 +271,6 @@ namespace Sigma.Viewmodels
                 catch { }
 
             Chatrooms = new ObservableCollection<ChatRoomViewModel>();
-
 
             if (File.Exists(chatroomsPath))
             {
@@ -240,9 +298,9 @@ namespace Sigma.Viewmodels
                         }
                         else
                         {
-                            var chatroomId = chatroomLines[1].Split(':',2)[1][1..];
-                            var chatroomName = chatroomLines[2].Split(':',2)[1][1..];
-                            var chatroomPicture = chatroomLines[3].Split(':',2)[1][1..];
+                            var chatroomId = chatroomLines[1].Split(':', 2)[1][1..];
+                            var chatroomName = chatroomLines[2].Split(':', 2)[1][1..];
+                            var chatroomPicture = chatroomLines[3].Split(':', 2)[1][1..];
                             i = 4;
                             List<User> participants = new();
                             foreach (var participantLine in chatroomLines[4..])
@@ -251,7 +309,7 @@ namespace Sigma.Viewmodels
                                 {
                                     User user = new();
                                     foreach (var contact in Contacts)
-                                        if (contact.UserId == long.Parse(chatroomLines[i].Split(':',2)[1][1..]))
+                                        if (contact.UserId == long.Parse(chatroomLines[i].Split(':', 2)[1][1..]))
                                         {
                                             user = contact;
                                             break;
@@ -271,7 +329,7 @@ namespace Sigma.Viewmodels
                             //var user = (User)Contacts.Where(c => c.UserId == long.Parse(r[i].Split(':')[1])); // geht ned
                             User user = new();
                             foreach (var contact in Contacts)
-                                if (contact.UserId == long.Parse(chatroomLines[i].Split(':',2)[1][1..]))
+                                if (contact.UserId == long.Parse(chatroomLines[i].Split(':', 2)[1][1..]))
                                 {
                                     user = contact;
                                     break;
@@ -296,6 +354,12 @@ namespace Sigma.Viewmodels
                 }
                 catch { }
             }
+
+            if (File.Exists(unseenMessages))
+            {
+                var unseenMessagesImport = File.ReadAllText(unseenMessages);
+                UnreadMessages = JsonSerializer.Deserialize<List<long>>(unseenMessagesImport);
+            }
         }
 
         private void SaveChatrooms()
@@ -303,10 +367,15 @@ namespace Sigma.Viewmodels
             var appdataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Sigma");
             var chatroomsPath = Path.Combine(appdataPath, "chatrooms.txt");
             var contactsPath = Path.Combine(appdataPath, "contacts.xml");
+            var unseenMessages = Path.Combine(appdataPath, "unseenMessages.json");
 
+            File.Delete(unseenMessages);
+            var json = JsonSerializer.Serialize(UnreadMessages);
+            File.WriteAllText(unseenMessages, json);
+
+            File.Delete(contactsPath);
             if (Contacts.Count > 1)
             {
-                File.Delete(contactsPath);
                 var con = Contacts.TakeLast(Contacts.Count - 1).ToList();
                 XmlSerializer xs = new XmlSerializer(typeof(List<User>));
                 using (StreamWriter wr = new StreamWriter(contactsPath))
@@ -321,9 +390,9 @@ namespace Sigma.Viewmodels
             //    xs.Serialize(wr, Chatrooms);
             //}
 
+            File.Delete(chatroomsPath);
             if (Chatrooms.Count > 0)
             {
-                File.Delete(chatroomsPath);
                 foreach (var chatRoomViewModel in Chatrooms)
                 {
                     if (chatRoomViewModel.ChatRoom is PrivateChat pc)
@@ -352,17 +421,6 @@ namespace Sigma.Viewmodels
                     File.AppendAllText(chatroomsPath, $"\n");
                 }
             }
-
-            //string json;
-            //try
-            //{
-            //    json = JsonConvert.SerializeObject(Chatrooms);
-            //}
-            //catch
-            //{
-            //    json = JsonSerializer.Serialize(Chatrooms);
-            //}
-            //File.WriteAllText(chatroomsPath, json);
         }
 
         /// <summary>
@@ -412,6 +470,20 @@ namespace Sigma.Viewmodels
                 {
                     chatRoom.ChatHistory.Add(new Message(senderUser, $"FILE: {path}"));
                 });
+                if (MainWindow.Instance.WindowState == WindowState.Minimized || !MainWindow.Instance.IsVisible || !MainWindow.Instance.IsActive)
+                {
+                    new ToastContentBuilder()
+                        .AddArgument("action", "viewConversation")
+                        .AddArgument("conversationId", senderId)
+                        .AddText($"{senderUser.UserName}")
+                        .AddText($"FILE: {path}")
+                        .Show();
+                }
+                if (SelectedChatRoom.ChatRoom != chatRoom)
+                {
+                    UnreadMessages.Add(senderId);
+                    UpdateCount_Click();
+                }
             }
         }
 
@@ -440,7 +512,22 @@ namespace Sigma.Viewmodels
                 MainWindow.Instance.Dispatcher.Invoke(delegate ()
                 {
                     chatRoom.ChatHistory.Add(new Message(senderUser, $"FILE: {path}"));
+                    if (MainWindow.Instance.WindowState == WindowState.Minimized || !MainWindow.Instance.IsVisible || !MainWindow.Instance.IsActive)
+                    {
+                        new ToastContentBuilder()
+                            .AddArgument("action", "viewConversation")
+                            .AddArgument("conversationId", ((Groupchat)chatRoom).RoomId)
+                            .AddText($"{senderUser.UserName} in {chatRoom.Name}")
+                            .AddText($"FILE: {path}")
+                            .AddCustomTimeStamp(DateTime.Now)
+                            .Show();
+                    }
                 });
+                if (SelectedChatRoom.ChatRoom != chatRoom)
+                {
+                    UnreadMessages.Add(((Groupchat)chatRoom).RoomId);
+                    UpdateCount_Click();
+                }
             }
         }
 
@@ -462,8 +549,13 @@ namespace Sigma.Viewmodels
                         if (participant.UserId == userId)
                         {
                             groupchat.Participants.Remove(participant);
+                            MainWindow.Instance.Dispatcher.Invoke(delegate ()
+                            {
+                                groupchat.ChatHistory.Add(new Message(System, $"{participant.UserName} left"));
+                            });
                             break;
                         }
+
         }
 
         /// <summary>
@@ -542,7 +634,13 @@ namespace Sigma.Viewmodels
             }
             foreach (ChatRoomViewModel chat in Chatrooms)
                 if (chat.ChatRoom is Groupchat groupchat && groupchat.RoomId == roomId)
+                {
                     groupchat.Participants.Add(joinedUser);
+                    MainWindow.Instance.Dispatcher.Invoke(delegate ()
+                    {
+                        groupchat.ChatHistory.Add(new Message(System, $"{joinedUser.UserName} added"));
+                    });
+                }
         }
 
         /// <summary>
@@ -590,6 +688,10 @@ namespace Sigma.Viewmodels
                         catch { }
                     }
                     groupchat.Participants.Add(joinedUser);
+                    MainWindow.Instance.Dispatcher.Invoke(delegate ()
+                    {
+                        groupchat.ChatHistory.Add(new Message(System, $"{joinedUser.UserName} added"));
+                    });
                 }
         }
 
@@ -920,6 +1022,7 @@ namespace Sigma.Viewmodels
                     break;
                 }
             }
+
             if (chatRoom != null)
             {
                 User senderUser = GetUser(senderId);
@@ -930,7 +1033,22 @@ namespace Sigma.Viewmodels
                         chatRoom.ChatHistory.Add(new Message(senderUser, content));
                     }
                     catch { }
+                    if (MainWindow.Instance.WindowState == WindowState.Minimized || !MainWindow.Instance.IsVisible || !MainWindow.Instance.IsActive)
+                    {
+                        new ToastContentBuilder()
+                            .AddArgument("action", "viewConversation")
+                            .AddArgument("conversationId", senderId)
+                            .AddText($"{senderUser.UserName}")
+                            .AddText($"{content}")
+                            .Show();
+                    }
                 });
+
+                if (SelectedChatRoom.ChatRoom != chatRoom)
+                {
+                    UnreadMessages.Add(senderId);
+                    UpdateCount_Click();
+                }
             }
         }
 
@@ -964,7 +1082,25 @@ namespace Sigma.Viewmodels
                 MainWindow.Instance.Dispatcher.Invoke(delegate ()
                 {
                     chatRoom.ChatHistory.Add(new Message(senderUser, content));
+                    if (MainWindow.Instance.WindowState == WindowState.Minimized || !MainWindow.Instance.IsVisible || !MainWindow.Instance.IsActive)
+                    {
+                        new ToastContentBuilder()
+                            .AddArgument("action", "viewConversation")
+                            .AddArgument("conversationId", ((Groupchat)chatRoom).RoomId)
+                            .AddText($"{senderUser.UserName} in {chatRoom.Name}")
+                            .AddText($"{content}")
+                            .AddCustomTimeStamp(DateTime.Now)
+                            //.AddAudio(new Uri("https://cf-hls-media.sndcdn.com/media/159660/0/31762/4xyMpK9cIUt5.128.mp3?Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiKjovL2NmLWhscy1tZWRpYS5zbmRjZG4uY29tL21lZGlhLzE1OTY2MC8qLyovNHh5TXBLOWNJVXQ1LjEyOC5tcDMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2NjYyODg4NzZ9fX1dfQ__&Signature=efSmhzerExQg0NklLw3xZNahU~~ZLCMhRGdY18GwNsOhclPOfPziI1RshHzkdltlat9BJrGOZZ4CJoQgwscWilKKkO8sLWOA43UyndCmEVzcqcsX3BHna06cszC2wf2jGXsau0slANuO~MNsFPuvQqxmbtC4FZDO5m4CvOyjQ5oaVtQn77X0wKTRy6Uay7-rJSgVncRDb2Pk2KarOYXXV0x51B7l7Eza7r1exmfqDcT5tNyOcm-gerqyBlBBChTSaqdWdqaT98fag5BabN03L8GVzeAKk1ueo8Pxqgg95cZhITknw~Laz-YwS~9hgvxKSPwTEG6qLMTawOXVMCpUIA__&Key-Pair-Id=APKAI6TU7MMXM5DG6EPQ"))
+                            //.AddAudio(new Uri("ms-winsoundevent:Notification.Reminder"))
+                            .Show();
+                    }
                 });
+
+                if (SelectedChatRoom.ChatRoom != chatRoom)
+                {
+                    UnreadMessages.Add(((Groupchat)chatRoom).RoomId);
+                    UpdateCount_Click();
+                }
             }
         }
 
@@ -987,32 +1123,6 @@ namespace Sigma.Viewmodels
             //        if (user.UserId == senderId)
             //            sender = user;
             return sender;
-        }
-
-        private static string GetIpAddressFromHost()
-        {
-            string hostname = Dns.GetHostName();
-            //Get the Ip
-            try
-            {
-                return Dns.GetHostByName(hostname).AddressList[1].ToString();
-            }
-            catch
-            {
-                try
-                {
-                    using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
-                    {
-                        socket.Connect("8.8.8.8", 65530);
-                        IPEndPoint? endPoint = socket.LocalEndPoint as IPEndPoint;
-                        return endPoint?.Address.ToString();
-                    }
-                }
-                catch
-                {
-                    return null;
-                }
-            }
         }
     }
 }

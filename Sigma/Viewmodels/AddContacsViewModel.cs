@@ -5,6 +5,7 @@
 
 using Sigma.Commands;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -122,7 +123,8 @@ namespace Sigma.Viewmodels
 
         private static string SetIpField()
         {
-            string ip = GetIpAddressFromHost();
+            string ip = App.GetAllLocalIPv4(System.Net.NetworkInformation.NetworkInterfaceType.Wireless80211).FirstOrDefault() ??
+                        App.GetAllLocalIPv4(System.Net.NetworkInformation.NetworkInterfaceType.Ethernet).FirstOrDefault();
             if (ip != null)
             {
                 string mask = GetSubnetMask(ip);
@@ -147,32 +149,6 @@ namespace Sigma.Viewmodels
                 }
             }
             return "0.0.0.0";
-        }
-
-        private static string GetIpAddressFromHost()
-        {
-            string hostname = Dns.GetHostName();
-            //Get the Ip
-            try
-            {
-                return Dns.GetHostByName(hostname).AddressList[1].ToString();
-            }
-            catch
-            {
-                try
-                {
-                    using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
-                    {
-                        socket.Connect("8.8.8.8", 65530);
-                        IPEndPoint? endPoint = socket.LocalEndPoint as IPEndPoint;
-                        return endPoint?.Address.ToString();
-                    }
-                }
-                catch
-                {
-                    return null;
-                }
-            }
         }
 
         private static string GetSubnetMask(string ip)

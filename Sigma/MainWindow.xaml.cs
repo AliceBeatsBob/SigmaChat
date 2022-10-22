@@ -3,10 +3,12 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
+using Microsoft.Toolkit.Uwp.Notifications;
 using Sigma.Viewmodels;
 using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -14,6 +16,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shell;
 
 namespace Sigma
 {
@@ -47,11 +51,12 @@ namespace Sigma
                 MessageBox.Show("Error, no Name was given.", "Alert", MessageBoxButton.OK);
                 this.Close();
             }
-            if(Properties.Settings.Default.UserId == -1)
+            if (Properties.Settings.Default.UserId == -1)
             {
                 Properties.Settings.Default.UserId = DateTime.Now.Ticks;
                 Properties.Settings.Default.Save();
             }
+            Instance = this;
             InitializeComponent();
             //this.DataContext = new MainWindowViewModel();
             ((MainWindowViewModel)DataContext).SwaptoSetting += (sender, _) => SwaptoSetting();
@@ -69,7 +74,28 @@ namespace Sigma
             this.Resources["Textfieldcolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.TextfielColor));
             this.Resources["Buttoncolor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Properties.Settings.Default.ButtonColor));
 
-            Instance = this;
+            ToastNotificationManagerCompat.OnActivated += toastArgs =>
+            {
+                MainWindow.Instance.Dispatcher.Invoke(delegate ()
+                {
+                    try
+                    {
+                        if (!MainWindow.Instance.IsVisible)
+                        {
+                            MainWindow.Instance.Show();
+                        }
+                        if (MainWindow.Instance.WindowState == WindowState.Minimized)
+                        {
+                            MainWindow.Instance.WindowState = WindowState.Normal;
+                        }
+                        MainWindow.Instance.Activate();
+                        MainWindow.Instance.Topmost = true;
+                        MainWindow.Instance.Topmost = false;
+                        MainWindow.Instance.Focus();
+                    }
+                    catch { }
+                });
+            };
         }
 
         private void SwaptoSetting()
@@ -95,6 +121,7 @@ namespace Sigma
 
                     Colorsetter(background, border, menu, text, listbox, textfield, buttoncolor);
                     break;
+
                 case "Black":
                     background = Color.FromRgb(50, 50, 50);
                     border = Color.FromRgb(255, 255, 255);
@@ -105,8 +132,8 @@ namespace Sigma
                     buttoncolor = menu;
 
                     Colorsetter(background, border, menu, text, listbox, textfield, buttoncolor);
-
                     break;
+
                 case "Yellow":
                     background = (Color)ColorConverter.ConvertFromString("Beige"); //245,245,220
                     border = Color.FromRgb(0, 0, 0);
@@ -118,6 +145,7 @@ namespace Sigma
 
                     Colorsetter(background, border, menu, text, listbox, textfield, buttoncolor);
                     break;
+
                 case "Green":
                     background = Color.FromRgb(27, 188, 156);
                     border = Color.FromRgb(0, 0, 0);
@@ -129,7 +157,6 @@ namespace Sigma
 
                     Colorsetter(background, border, menu, text, listbox, textfield, buttoncolor);
                     break;
-
             }
         }
 
@@ -166,7 +193,9 @@ namespace Sigma
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             //tbl_ip.IsEnabled = false;
-            string localIP = GetIpAddressFromHost();
+            string localIP = App.GetAllLocalIPv4(System.Net.NetworkInformation.NetworkInterfaceType.Wireless80211).FirstOrDefault() ??
+                             App.GetAllLocalIPv4(System.Net.NetworkInformation.NetworkInterfaceType.Ethernet).FirstOrDefault();
+
             Clipboard.SetText(localIP);
 
             Task.Run(() => changeText());
@@ -183,43 +212,6 @@ namespace Sigma
                     tbl_ip.SetResourceReference(Button.ContentProperty, "StrCopyIpButton");
                     //tbl_ip.IsEnabled = true;
                 });
-            }
-        }
-
-        /// <summary>
-        /// Function returns IpAddress of current User
-        /// </summary>
-        private static string GetIpAddressFromHost()
-        {
-            string hostname = Dns.GetHostName();
-            //Get the Ip
-            try
-            {
-                //MessageBox.Show(Application.Current.FindResource("StrIpCopyErrorMsg").ToString(), "Alert", MessageBoxButton.OK);
-                return Dns.GetHostByName(hostname).AddressList[1].ToString();
-            }
-            catch
-            {
-                try
-                {
-                    using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
-                    {
-                        socket.Connect("8.8.8.8", 65530);
-                        IPEndPoint? endPoint = socket.LocalEndPoint as IPEndPoint;
-                        return endPoint?.Address.ToString();
-                    }
-                }
-                catch
-                {
-                    //Application.Current.FindResource("StrIpCopyErrorMsg");
-                    MessageBox.Show(Application.Current.FindResource("StrIpCopyErrorMsg").ToString(), "Alert", MessageBoxButton.OK);
-                    Random rd = new Random();
-                    byte i = (byte)rd.Next(0, 1);
-                    if (i == 0)
-                        return "Scheiß mane";
-                    else
-                        return "Alice > Bob";
-                }
             }
         }
 

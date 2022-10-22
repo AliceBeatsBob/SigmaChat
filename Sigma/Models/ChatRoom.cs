@@ -3,7 +3,6 @@
 //  ඞ Hackl Tobias
 //  ඞ Ratzenböck Peter
 
-using Newtonsoft.Json.Linq;
 using Sigma.Interfaces;
 using System;
 using System.Collections.Generic;
